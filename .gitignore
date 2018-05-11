@@ -2,7 +2,6 @@
 node_modules/
 public/
 .idea/
-view/
 .git/
 pull.bat
 push.bat
