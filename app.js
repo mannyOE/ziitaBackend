@@ -9,7 +9,7 @@ var mongoose      = require('mongoose');
 var configDB      = require('./database/config/database.js');
 var autoIncrement = require('mongoose-auto-increment');
 var jwt           = require('jsonwebtoken');
-var port          = process.env.PORT || 3000;
+var port          = process.env.PORT || 2300;
 global.hostname   = process.env.HOSTNAME || "18.221.93.144";
 hostname = hostname.toLowerCase();
 global.hostport   = port;
@@ -107,4 +107,4 @@ require('./modules/subs/subscriptions');
     http.listen(port);
 // }
 
-console.log('listening on localhost:' + port+ (is_ssl?" (SSL)":""));
+console.log('listening on port:' + port);
