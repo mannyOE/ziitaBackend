@@ -13,7 +13,7 @@ var port          = process.env.PORT || 2300;
 global.hostname   = process.env.HOSTNAME || "18.221.93.144";
 hostname = hostname.toLowerCase();
 global.hostport   = port;
-global.hosturl    = "https://"+"18.221.93.144"+":"+hostport;
+global.hosturl    = "http://"+"18.221.93.144"+":"+hostport;
 console.log("URL: ", hosturl);
 
 var http          = require('http').Server(app);
