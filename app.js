@@ -10,10 +10,10 @@ var configDB      = require('./database/config/database.js');
 var autoIncrement = require('mongoose-auto-increment');
 var jwt           = require('jsonwebtoken');
 var port          = process.env.PORT || 3000;
-global.hostname   = process.env.HOSTNAME || "zeedas.com";
+global.hostname   = process.env.HOSTNAME || "18.221.93.144";
 hostname = hostname.toLowerCase();
 global.hostport   = port;
-global.hosturl    = "https://"+hostname+":"+hostport;
+global.hosturl    = "http://"+hostname+":"+hostport;
 console.log("URL: ", hosturl);
 
 var http          = require('http').Server(app);
@@ -101,10 +101,10 @@ require('./modules/subs/subscriptions');
 
 // require('./database/seeders/index.js');
 // launch ======================================================================
-if(is_ssl) {
-    https.listen(port);
-}else{
+// if(is_ssl) {
+//     https.listen(port);
+// }else{
     http.listen(port);
-}
+// }
 
 console.log('listening on localhost:' + port+ (is_ssl?" (SSL)":""));
