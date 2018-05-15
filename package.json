@@ -1,5 +1,5 @@
 {
-  "name": "ziita",
+  "name": "DMS",
   "version": "1.0.0",
   "description": "Project Management System",
   "main": "app.js",
@@ -34,6 +34,7 @@
     "curl": "^0.1.4",
     "directory-structure-json": "^1.0.0",
     "ejs": "^2.5.2",
+    "exec-sh": "^0.2.1",
     "express": "^4.14.0",
     "express-fileupload": "^0.4.0",
     "express-session": "^1.14.2",
@@ -69,13 +70,5 @@
   },
   "devDependencies": {
     "mongoose-seeder": "^1.2.1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Cdmi2018Webdev/ziitabackend.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Cdmi2018Webdev/ziitabackend/issues"
-  },
-  "homepage": "https://github.com/Cdmi2018Webdev/ziitabackend#readme"
+  }
 }

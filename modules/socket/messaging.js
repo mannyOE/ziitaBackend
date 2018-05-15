@@ -9,7 +9,6 @@ var isLoggedIn    = functions.isLoggedIn;
 var Messages      = require('../../database/models/messages.js')
 global.io         = require('socket.io')(http)
 var shortid       = require('shortid');
-var developers= require('../../database/models/developers.js');
 var Notifications= require('../../database/models/notification.js')
 
 // var pty       = require('pty.js');
@@ -66,7 +65,10 @@ app.get('/messaging', (req,res,next)=>{
     }).sort( { time_stamp: -1 } ).limit(20)
 
 });
+//set all to offline
+   User.update({},{$set:{isOnline:0}},(err,res)=>{
 
+                    })
 app.get('/messaging/all', isLoggedIn, (req, res)=>{
 
      message_array = [];
@@ -106,9 +108,9 @@ app.get('/messaging/all', isLoggedIn, (req, res)=>{
                 console.log("user id",user);
               if(user){
                 User.find({Id:user.user_id},function(err,person){
-                 
+
                   if(person.type=='3'){
-                      developers.update({Id:user.user_id},{$set:{isOnline:0}},(err,res)=>{
+                      User.update({Id:user.user_id},{$set:{isOnline:0}},(err,res)=>{
                        console.log("persons",res)
               })
                   }
@@ -118,7 +120,7 @@ app.get('/messaging/all', isLoggedIn, (req, res)=>{
                     })
                   }
                 })
-                
+
                    //send broadcast
                  io.sockets.emit('userOffline', { user_id: user.user_id});
                  //remove from array
@@ -128,7 +130,7 @@ app.get('/messaging/all', isLoggedIn, (req, res)=>{
               }
         })
          socket.on('init', function (data) {
-              
+
                 for(var x = 0 ; x< online.length;x ++){
                   if(online[x].user_id==data.user_id)
                     online.splice(x,1)
@@ -140,7 +142,7 @@ app.get('/messaging/all', isLoggedIn, (req, res)=>{
                  User.find({Id:data.user_id},function(err,person){
                     console.log("persons",person)
                   if(person.type=='3'){
-                      developers.update({Id:data.user_id},{$set:{isOnline:1}},(err,res)=>{
+                      User.update({Id:data.user_id},{$set:{isOnline:1}},(err,res)=>{
                        console.log("persons",res)
               })
                   }
@@ -169,25 +171,25 @@ app.get('/messaging/all', isLoggedIn, (req, res)=>{
            // res.send({status:true, count:message.length, data:message_array});
            });
 
-          
-           
+
+
            Messages.find({recipient: data.user_id, $or:[{status: 1},{status:0}] } , function(err, message){
              console.log("errr",err);
             console.log("message",message)
 
            message.forEach(function(msg){
-                      msg.status = 1; 
+                      msg.status = 1;
                       io.to(data.user_id).emit('message', msg);
                       io.to(data.sender).emit('recieved', msg);
 
            })
            // res.send({status:true, count:message.length, data:message_array});
     });
-              
-              
+
+
         });
 
-           
+
             socket.on('message', function(data){
                 console.log("my ,message",data)
                   data.time_stamp = new Date().getTime();
@@ -223,21 +225,21 @@ app.get('/messaging/all', isLoggedIn, (req, res)=>{
             socket.on('TypingStop', function(data){
               io.to(data.recipient).emit('TypingStop', data);
             });
-            
+
             socket.on('more',function(data){
               message_array = [];
               Messages.find({time_stamp: { $lt: data.time_stamp },$or:[{sender: data.sender},{recipient:data.sender}] },function(err,messages){
-              
+
                 messages.forEach(function(data){
                 message_array.push(data);
-             
+
                  });
               io.to(data.sender).emit('more',message_array)
             }).sort( { time_stamp: -1 } ).limit(20)
             })
 
             socket.on('Delivered', function(data){
-             
+
               Messages.findOneAndUpdate({Id:data.Id},{status:2, updated_stamp:new Date().getTime()},{new:true},function(err, message){
                 data.status = 2;
                 console.log("Delivered",message)
@@ -251,13 +253,13 @@ app.get('/messaging/all', isLoggedIn, (req, res)=>{
                 console.log("read",message)
               io.to(data.sender).emit('Read', message);
               io.to(data.recipient).emit('Read', message);
-               
+
 
               });
               // update_message(data,3)
             });
              socket.on('Seen', function(data){
-             
+
               Messages.findOneAndUpdate({Id:data.Id},{status:3, updated_stamp:new Date().getTime()},{new:true},function(err, message){
                 data.status = 3;
                 console.log("Seen",message)
@@ -270,7 +272,7 @@ app.get('/messaging/all', isLoggedIn, (req, res)=>{
                 data.status = 5;
                 console.log("read",message)
               // io.to(data.sender).emit('Read', message);
-               
+
 
               });
               // update_message(data,3)
@@ -311,7 +313,7 @@ app.get('/messaging/all', isLoggedIn, (req, res)=>{
             console.log(data);
         });
 
-      
+
 
     });
 

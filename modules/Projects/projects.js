@@ -20,6 +20,7 @@ var done      = false;
 var multer    = require('multer');
 var rs = require('randomstring');
 var fse = require('fs-extra');
+var async = require('async');
 module.exports = function (app, io) {
 
 
@@ -65,6 +66,7 @@ module.exports = function (app, io) {
     },function (req, res) {
 
         req.body.Id = shortid.generate();
+        req.body.created_time = new Date().getTime();
 
         Projects.create(req.body, function (err, project) {
 
@@ -185,10 +187,76 @@ module.exports = function (app, io) {
         User.findOne({Id: req.params.Id}, function (err, manager) {
 
             console.log("manager",manager.Id)
+            p_overview = [];
+            overview = {};
             Projects.find({team: {$in:[manager.Id]}}, function (err, project) {
-                 console.log("manager",project)
+            User.find({team_Id: manager.team_Id},function(err,team){
+                async.each(project,(p,next)=>{
 
-                res.send({status: true, count: project.length, project: project});
+        Module.find({project_Id: p.Id}, function (err, modules) {
+           
+            if (modules) {
+                overview.completed = 0;
+                overview.all_task = 0;
+                overview.submited = 0;
+                overview.done = 0;
+                overview.in_progress = 0;
+
+
+                modules.forEach(function (data) {
+
+                    if (data.status == 3) {
+
+                        //overview.completed += parseInt(data.dev_time);
+                        overview.completed++;
+                        overview.done++;
+
+                    } else if (data.status == 5 || data.status == 4) {
+
+                        overview.in_progress++;
+
+                    } else if (data.status == 2) {
+
+                        overview.submited++;
+                    }
+                    //overview.all_task+= parseInt(data.dev_time);
+                    overview.all_task++;
+                });
+
+                modules.sort(function (a, b) {
+                    console.log({a, b})
+
+                    var aa = a.updated_time || 0;
+                    var bb = b.updated_time || 0;
+                    return aa < bb ? -1 : (aa > bb ? 1 : 0);
+
+                });
+
+                overview.last_action = modules[0]?modules[0].updated_time:"";
+                overview.progress = (overview.completed/overview.all_task) * 100;
+                overview.Id = p.Id;
+                // console.log(overview);
+
+                // res.send({status: true, data: overview});
+                p_overview.push(overview);
+                overview = {};
+                next();
+
+            } else {
+                overview = {};
+                next()
+            }
+
+        });
+
+                },err=>{
+                res.send({status: true, count: project.length, project: project,team:team,overview:p_overview});
+
+                })
+
+
+
+            })
 
             });
 
@@ -198,7 +266,7 @@ module.exports = function (app, io) {
 
 
     app.get('/project_details/:Id', (req, res,next)=>{
-      isLoggedIn(req, res, next, 'manageProject')
+      isLoggedIn(req, res, next)
     }, function (req, res) {
 
 
@@ -308,7 +376,7 @@ module.exports = function (app, io) {
     app.post('/update_project/:id',(req, res,next)=>{
       isLoggedIn(req, res, next, 'manageProject')
     }, (req, res)=> {
-        User.findOne({Id: req.decoded.Id}, (err, users)=> {
+        User.findOne({Id: req.decoded.user}, (err, users)=> {
             if (users) {
                 Projects.findOne({Id: req.params.id}, (err, projects)=> {
                     if (projects) {
@@ -496,7 +564,352 @@ module.exports = function (app, io) {
 
     });
 
+    app.post('/project/read_file/:Id/',(req,res)=>{
+            var file_path = req.body.file_path || "";
 
+                 if (!req.params.Id) {
+                req.send({status: false, message: "Invalid module"});
+                return;
+               }
+                Module.findOne({Id:req.params.Id},(err,module)=>{
+                     if (err) {
+                req.send({status: false, message: "Can not find module"});
+                return;
+            }
+                    var project_Id = module.project_Id;
+                    var developer = module.developer_Id;
+            Projects.findOne({Id: project_Id}, function (err, project) {
+            if (err) {
+                req.send({status: false, message: "Can not find project"});
+                return;
+            }
+
+            var url = project.repository_url || "";
+            var username = project.repository_username || "";
+            var password = project.repository_password || "";
+            var path = req.body.path || "";
+            path = path == "/"?"":path;
+
+            var credential = terms.base64.encode(username + ":" + password);
+
+
+
+            if (url.toLowerCase().indexOf("bitbucket.org") > -1 || url.toLowerCase().indexOf("bitbucket.com") > -1) {
+                url = url.replace(/(https|http):\/\//, "");
+                var ab = url.split("/");
+
+                var options = {
+                    url: 'https://api.bitbucket.org/2.0/repositories/' + ab[1] + '/' + ab[2] +'/src/developer_'+developer+'/'+file_path+'/',
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Basic ' + credential
+                    },
+                    body: ''
+                };
+
+                request(options, function (error, response, body) {
+                    if (error) {
+                        res.send({status: false, message: "Error: " + error});
+                    } else {
+                        var code = response.statusCode || 400;
+                        var message = "";
+                        switch (code) {
+                            case 400:
+                                message = "Invalid Username or Password";
+                                break;
+                            case 401:
+                                message = "Invalid Username or Password";
+                                break;
+                            case 404:
+                                message = "Repository Not Found";
+                                break;
+                            case 200:
+                                message = "Successful";
+                                break;
+                            default:
+                                message = "Invalid Repository Url";
+                        }
+                        if(code == 200){
+                             res.send({status: true, content:body});
+                        }
+                        else {
+                            res.send({status: false, message: message});
+                        }
+
+
+                        }
+                    }
+                );
+
+                //GITHUB
+            }else if (url.toLowerCase().indexOf("github.com") > -1) {
+                url = url.replace(/(https|http):\/\//, "");
+                var ab = url.split("/");
+                var agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36";
+                var options = {
+                    url: 'https://api.github.com/repos/' + ab[1] + '/' + ab[2] + '/contents/'+file_path+'?ref=developer_'+developer,
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Basic ' + credential,
+                        'User-Agent': agent,
+                        UserAgent: agent
+                    },
+                    body: ''
+                };
+
+                if(path != ""){
+                    options.url += "/" + path;
+                }
+
+                request(options, function (error, response, body) {
+                    if (error) {
+                        res.send({status: false, message: "Error: " + error});
+                    } else {
+                        var code = response.statusCode || 400;
+                        var message = "";
+                        switch (code) {
+                            case 400:
+                                message = "Invalid Username or Password";
+                                break;
+                            case 401:
+                                message = "Invalid Username or Password";
+                                break;
+                            case 404:
+                                message = "Repository Not Found";
+                                break;
+                            case 200:
+                                message = "Successful";
+                                break;
+                            default:
+                                message = "Invalid Repository Url";
+                        }
+                        if(code == 200){
+                            body = body.content;
+                            if(!body){
+
+                                res.send({status: false, message: "empty files"});
+                                return;
+                            }else{
+                                 var _contents = atob(body)
+                                res.send({status:true,content:_contents});
+                            }
+return;
+
+                        }else {
+                            res.send({status: false, message: message});
+                        }
+                    }
+                });
+            } else {
+                res.send({status: false, message: "Only Bitbucket and Github Url is currently accepted"})
+            }
+        });
+                })
+
+    })
+    app.post('/project/developer_repository/:Id',(req,res)=>{
+                   if (!req.params.Id) {
+                req.send({status: false, message: "Invalid module"});
+                return;
+            }
+                Module.findOne({Id:req.params.Id},(err,module)=>{
+                      if (err) {
+                req.send({status: false, message: "Can not find module"});
+                return;
+            }
+            console.log(module)
+            var project_Id = module.project_Id;
+            var developer = module.developer_Id;
+                            Projects.findOne({Id: project_Id}, function (err, project) {
+            if (err) {
+                req.send({status: false, message: "Can not find project"});
+                return;
+            }
+
+            var url = project.repository_url || "";
+            var username = project.repository_username || "";
+            var password = project.repository_password || "";
+            var path = req.body.path || "";
+            path = path == "/"?"":path;
+
+            var credential = terms.base64.encode(username + ":" + password);
+
+
+
+            if (url.toLowerCase().indexOf("bitbucket.org") > -1 || url.toLowerCase().indexOf("bitbucket.com") > -1) {
+                url = url.replace(/(https|http):\/\//, "");
+                var ab = url.split("/");
+                var _url = 'https://api.bitbucket.org/2.0/repositories/' + ab[1] + '/' + ab[2] +'/src/developer_'+developer+'/'
+                console.log(_url);
+                console.log(credential)
+                var options = {
+                    url: _url,
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Basic ' + credential
+                    },
+                    body: ''
+                };
+
+                request(options, function (error, response, body) {
+                    if (error) {
+                        res.send({status: false, message: "Error: " + error});
+                    } else {
+                        var code = response.statusCode || 400;
+                        var message = "";
+                        switch (code) {
+                            case 400:
+                                message = "Invalid Username or Password";
+                                break;
+                            case 401:
+                                message = "Invalid Username or Password";
+                                break;
+                            case 404:
+                                message = "Repository Not Found";
+                                break;
+                            case 200:
+                                message = "Successful";
+                                break;
+                            default:
+                                message = "Invalid Repository Url";
+                        }
+                        if(code == 200){
+                            body = JSON.parse(body);
+                            console.log(typeof body);
+
+                            if(!body.values || body.values.length == 0){
+                                res.send({status: false, message: "empty files"});
+                                return;
+                            }
+
+                            var hash = body.values[0].commit.hash;
+                            console.log("hash", hash);
+
+                            if(path != ""){
+                                options.url += "/"+path;
+                            }
+                            var files = [];
+
+                            (function loop() {
+
+                                request(options, function (error, response, body) {
+                                    body = JSON.parse(body);
+                                    if(body.values){
+                                        for(var i in body.values){
+                                            var file = body.values[i];
+                                            var single = {};
+                                            single.path = file.path;
+                                            single.type = file.type == "commit_directory"?"dir":"file";
+                                            files.push(single);
+                                        }
+
+                                        if(body.next){
+                                            options.url = body.next;
+                                            loop();
+                                        }else{
+                                            res.send({status:true,files:files});
+                                        }
+
+                                    }else{
+                                        res.send({status:true,files:files});
+                                    }
+                                });
+                            }());
+                        }else {
+                            res.send({status: false, message: message});
+                        }
+                    }
+                });
+
+                //GITHUB
+            }else if (url.toLowerCase().indexOf("github.com") > -1) {
+                url = url.replace(/(https|http):\/\//, "");
+                var ab = url.split("/");
+                var agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36";
+                var options = {
+                    url: 'https://api.github.com/repos/' + ab[1] + '/' + ab[2] + '/contents?ref=developer_'+developer,
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Basic ' + credential,
+                        'User-Agent': agent,
+                        UserAgent: agent
+                    },
+                    body: ''
+                };
+
+                if(path != ""){
+                    options.url += "/" + path;
+                }
+
+                request(options, function (error, response, body) {
+                    if (error) {
+                        res.send({status: false, message: "Error: " + error});
+                    } else {
+                        var code = response.statusCode || 400;
+                        var message = "";
+                        switch (code) {
+                            case 400:
+                                message = "Invalid Username or Password";
+                                break;
+                            case 401:
+                                message = "Invalid Username or Password";
+                                break;
+                            case 404:
+                                message = "Repository Not Found";
+                                break;
+                            case 200:
+                                message = "Successful";
+                                break;
+                            default:
+                                message = "Invalid Repository Url";
+                        }
+                        if(code == 200){
+                            body = JSON.parse(body);
+                            if(!body || body.length == 0){
+                                res.send({status: false, message: "empty files"});
+                                return;
+                            }else{
+                                var files = [];
+                                for(var i in body){
+                                    var file = body[i];
+                                    var single = {};
+                                    single.path = file.path;
+                                    single.type = file.type == "dir"?"dir":"file";
+                                    files.push(single);
+                                }
+                                res.send({status:true,files:files});
+                            }
+return;
+                            if(path != ""){
+                                options.url += "/"+path;
+                            }
+                            var files = [];
+                            (function loop() {
+                                console.log(options);
+                                request(options, function (error, response, body) {
+                                    body = JSON.parse(body);
+                                    if(body){
+
+
+
+
+                                    }else{
+                                        res.send({status:true,files:files});
+                                    }
+                                });
+                            }());
+                        }else {
+                            res.send({status: false, message: message});
+                        }
+                    }
+                });
+            } else {
+                res.send({status: false, message: "Only Bitbucket and Github Url is currently accepted"})
+            }
+        });
+                })
+
+    })
     app.post('/project/repository_folder/:Id', function (req, res) {
         Projects.findOne({Id: req.params.Id}, function (err, project) {
             if (err) {
@@ -517,6 +930,7 @@ module.exports = function (app, io) {
             if (url.toLowerCase().indexOf("bitbucket.org") > -1 || url.toLowerCase().indexOf("bitbucket.com") > -1) {
                 url = url.replace(/(https|http):\/\//, "");
                 var ab = url.split("/");
+
                 var options = {
                     url: 'https://api.bitbucket.org/2.0/repositories/' + ab[1] + '/' + ab[2] + '/src',
                     method: 'GET',
@@ -564,6 +978,7 @@ module.exports = function (app, io) {
                                 options.url += "/"+hash+"/"+path;
                             }
                             var files = [];
+
                             (function loop() {
 
                                 request(options, function (error, response, body) {
@@ -698,12 +1113,12 @@ return;
 
 
 
-    app.get('/files/:user/:team', (req, res,next)=>{
+    app.get('/files/:user/:project', (req, res,next)=>{
       isLoggedIn(req, res, next, 'manageFiles')
     }, (req, res)=>{
         var user = req.decoded.user;
-        var team = req.params.team;
-        FileSys.find({file_team: team,  file_source: user}, (err, result)=>{
+        var team = req.params.project;
+        FileSys.find({file_project: team,  file_source: user}, (err, result)=>{
           if(err){
             throw err;
           }
@@ -714,13 +1129,13 @@ return;
           });
         });
     });
-    
-    app.get('/received/:user/:team',(req, res,next)=>{
+
+    app.get('/received/:user/:project',(req, res,next)=>{
       isLoggedIn(req, res, next, 'manageFiles')
     }, (req, res)=>{
         var user = req.decoded.user;
-        var team = req.params.team;
-        FileSys.find({file_team: team,  shared_with: {$in: [user]}}, (err, result)=>{
+        var team = req.params.project;
+        FileSys.find({file_project: team,  shared_with: {$in: [user]}}, (err, result)=>{
           if(err){
             throw err;
           }
@@ -746,7 +1161,7 @@ return;
     });
 
     app.get('/deleteFiles/:user/:file', (req, res, next)=>{
-  isLoggedIn(req, res, next)
+  isLoggedIn(req, res, next,'manageFiles')
 },  (req, res)=>{
         var user = req.decoded.user;
         var file = req.params.file;
@@ -789,45 +1204,35 @@ return;
 
     });
 // fkhewiiuiehqiueiheqhh
-    app.get('/shareFile/:user/:file', (req, res, next)=>{
-  isLoggedIn(req, res, next)
-}, (req, res)=>{
-        var user = req.params.user;
-        var file = req.params.file;
-        var exy = false;
 
-        FileSys.findOne({file_Id: file}, (err, rst)=>{
-          if(rst.shared_with.length !== undefined){
-            rst.shared_with.forEach((sha)=>{
-              if(sha === user){
-                exy = true;
-              }
-            })
-          }
-          if(!exy){
-            rst.shared_with.push(user);
-            FileSys.update({file_Id: file}, {$set: {shared_with: rst.shared_with}}, (err)=>{
-              res.send({
-                status: true,
-                message: "Successfully Shared",
-              });
-            });
-          }else{
-            var index = rst.shared_with.indexOf(user);
-  	      	if(index > -1){
-  	      		rst.shared_with.splice(index, 1);
-  	      	}
-            FileSys.update({file_Id: file}, {$set: {shared_with: rst.shared_with}}, (err)=>{
-              res.send({
-                status: true,
-                message: "Successfully Unshared",
-              });
-            });
-          }
 
+    app.post('/files/update/:Id', (req, res, next)=>{
+      isLoggedIn(req, res, next,'manageFiles')
+    }, (req, res)=>{
+      var id = req.params.Id;
+      var devId = req.body.devId;
+      var status = req.body.status;
+
+      $query = {$pull:{shared_with: devId}};
+
+      if(status == 1){
+          $query = {$push:{shared_with: devId}};
+      }
+
+      if(status == 2){
+          $query = {$set:{isGeneral: true, shared_with: []}};
+      }
+
+      if(status == 3){
+          $query = {$set:{isGeneral: false}};
+      }
+
+      FileSys.update({file_Id: id}, $query, (err, result)=>{
+        res.send({
+          status: true,
+          message: "Update Done"
         });
-
-
+      });
     });
 
     var mult = multer({
@@ -876,13 +1281,13 @@ return;
               file_dets.file_Id = rs.generate({
                 length: 8,
                 charset: 'numeric'
-              });
+              })+'_'+Date.now();
               file_dets.file_ext = file.extension;
               file_dets.file_name = file.name;
               file_dets.file_mime = file.mimetype;
               file_dets.file_original = file.originalname;
               file_dets.file_url = project_path+file.name;
-              file_dets.file_team = req.headers['team'];
+              file_dets.file_project = req.headers['project'];
               file_dets.file_source = req.decoded.user;
 
               FileSys.create(file_dets, (err)=>{
@@ -901,14 +1306,15 @@ return;
             file_dets.file_Id = rs.generate({
               length: 8,
               charset: 'numeric'
-            });
+            })+'_'+Date.now();
             file_dets.file_ext = upload.extension;
             file_dets.file_name = upload.name;
             file_dets.file_original = upload.originalname;
             file_dets.file_mime = upload.mimetype;
             file_dets.file_url = project_path+upload.name;
-            file_dets.file_team = req.headers['team'];
+            file_dets.file_project = req.headers['project'];
             file_dets.file_source = req.decoded.user;
+            console.log(req.decoded.user);
             FileSys.create(file_dets, (err)=>{
               if(err){
                 throw err;

@@ -10,11 +10,12 @@ var walletSchema = new Schema({
     payouts                : {type:Number, default: 0},
     pending                : {type:Number, default: 0},
     Id                     : String,
-    created_time           : String
+    created_time           : String,
+    create_developers       : String,
+    blocked                : {type: Boolean, default: false},
 
 });
 
 
 
 module.exports = mongoose.model('Wallet', walletSchema);
-

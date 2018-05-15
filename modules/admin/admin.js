@@ -6,11 +6,8 @@ var async     = require('async');
 var functions = require('../../util/functions');
 var constants = require('../../util/constants');
 var User      = require('../../database/models/user.js');
-var Teams     = require('../../database/models/Team.js');
 var roles     = require('../../database/models/roles.js');
 var Invited   = require('../../database/models/Invited.js');
-var developers= require('../../database/models/developers.js');
-var managers  = require('../../database/models/manager.js');
 var Projects  = require('../../database/models/projects.js');
 var Wallet 	  = require('../../database/models/Wallet.js');
 var Bill 	  = require('../../database/models/bills.js');
@@ -37,7 +34,7 @@ app.post('/clients/login',(req,res)=>{
 	}
 
 });
-app.post('/clients/transactions/:id',isLoggedIn,(req,res)=>{
+app.post('/clients/transactions/:id',(req,res)=>{
 	transaction_array = [];
 	if(!req.params.id){
 		res.send({status:false,message:"Error retrieving transactions"})
@@ -63,7 +60,7 @@ app.post('/clients/transactions/:id',isLoggedIn,(req,res)=>{
 
 	}).sort({"created_time":1}).limit(5)
 })
-app.get('/clients/delete/:id',isLoggedIn,(req,res)=>{
+app.get('/clients/delete/:id',(req,res)=>{
 	if(!req.params.id)
 	{
 		res.send({ status: false, message: "could not remove company" });
@@ -74,16 +71,6 @@ app.get('/clients/delete/:id',isLoggedIn,(req,res)=>{
 	project_array=[];
 	User.remove({team_Id:team_Id},function(err,user){
 		if(err){
-				res.send({ status: false, message: "could not remove company" });
-			return;
-			}
-	developers.remove({team_Id:team_Id},function(err,user){
-			if(err){
-				res.send({ status: false, message: "could not remove company" });
-			return;
-			}
-	managers.remove({team_Id:team_Id},function(err,user){
-			if(err){
 				res.send({ status: false, message: "could not remove company" });
 			return;
 			}
@@ -110,11 +97,10 @@ app.get('/clients/delete/:id',isLoggedIn,(req,res)=>{
 				})
 			})
 		})
-	})
-	})
+
 	})
 })
-app.post('/clients',isLoggedIn,(req,res)=>{
+app.post('/clients',(req,res)=>{
 	     clients_array = [];
 	     team_array = [];
 	     returnClients = [];
@@ -223,7 +209,7 @@ app.post('/clients',isLoggedIn,(req,res)=>{
 	     }).limit(5).sort({"created_time": 1})
 	  	// })
 })
-  app.get('/clients/skills',isLoggedIn, function (req, res) {
+  app.get('/clients/skills', function (req, res) {
     Skills.find({}, function (err, skills) {
       if (err) {
         res.send({
@@ -242,7 +228,7 @@ app.post('/clients',isLoggedIn,(req,res)=>{
 
   });
 
-  app.post('/clients/skills',isLoggedIn, function (req, res) {
+  app.post('/clients/skills', function (req, res) {
     /** Add a new skill */
 
     // sug1 = ['vb.net', 'javascript', 'jquery', 'android' , 'php',
@@ -272,7 +258,7 @@ app.post('/clients',isLoggedIn,(req,res)=>{
     // });
 
   });
-  app.get('/clients/skills/:skill',isLoggedIn, function (req, res) {
+  app.get('/clients/skills/:skill', function (req, res) {
     /** Add a new skill */
 
     // sug1 = ['vb.net', 'javascript', 'jquery', 'android' , 'php',
@@ -297,7 +283,7 @@ app.post('/clients',isLoggedIn,(req,res)=>{
   });
 
     //find docker by team id
-    app.get('/clients/docker_list/:team_Id',isLoggedIn, (req, res)=>{
+    app.get('/clients/docker_list/:team_Id', (req, res)=>{
         console.log({'id': req.params.team_Id})
 
         Docker.find({ $or : [
@@ -319,7 +305,7 @@ app.post('/clients',isLoggedIn,(req,res)=>{
     // })
 
     //delete a docker file
-    app.post('/clients/remove_docker',isLoggedIn, (req, res)=>{
+    app.post('/clients/remove_docker', (req, res)=>{
         Docker.findOneAndRemove({Id: req.body.Id}, function(err, docker){
             console.log({docker})
             if(err){
@@ -333,7 +319,7 @@ app.post('/clients',isLoggedIn,(req,res)=>{
     })
 
     //create a docker
-    app.post('/clients/create_docker',isLoggedIn,(req, res)=>{
+    app.post('/clients/create_docker',(req, res)=>{
         console.log('')
         Docker.findOne({Id:req.body.Id}, (err, doc)=>{
             if(!req.body.team_Id){

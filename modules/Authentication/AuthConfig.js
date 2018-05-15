@@ -49,12 +49,12 @@ module.exports = function (passport) {
               current_last_id = parseInt(data.Id);
               new_Id_digit = current_last_id + 1;
               req.body.Id = functions.genId(new_Id_digit, 6);
-              req.body.created_time = functions.Create();
+              req.body.created_time = new Date().getTime();
 
             } else {
 
               req.body.Id = '000001';
-              req.body.created_time = functions.Create();
+              req.body.created_time = new Date().getTime();
 
             }
 
@@ -219,12 +219,12 @@ module.exports = function (passport) {
 //               current_last_id = parseInt(data.Id);
 //               new_Id_digit = current_last_id + 1;
 //               req.body.Id = functions.genId(new_Id_digit, 6);
-//               req.body.created_time = functions.Create();
+//               req.body.created_time = new Date().getTime();
 
 //             } else {
 
 //               req.body.Id = '000001';
-//               req.body.created_time = functions.Create();
+//               req.body.created_time = new Date().getTime();
 
 //             }
 

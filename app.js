@@ -1,10 +1,3 @@
-// localhost config
-// uncomment these lines for localhost
-// comment these liness when deploying
-process.env['NOSSL'] = 1;
-process.env['HOSTNAME'] = "localhost";
-
-// end localhost config
 
 var is_ssl = process.env.NOSSL?false:true;
 var express       = require('express');
@@ -16,7 +9,7 @@ var mongoose      = require('mongoose');
 var configDB      = require('./database/config/database.js');
 var autoIncrement = require('mongoose-auto-increment');
 var jwt           = require('jsonwebtoken');
-var port          = process.env.PORT || 8000;
+var port          = process.env.PORT || 3000;
 global.hostname   = process.env.HOSTNAME || "zeedas.com";
 hostname = hostname.toLowerCase();
 global.hostport   = port;
@@ -45,7 +38,7 @@ if(is_ssl) {
 }else{
     var io = require('socket.io')(http);
 }
-
+var io = require('socket.io')(http);
 //  DB Connection =============================================================
 var connection = mongoose.connect(configDB.staging, {useMongoClient: true}, function(err) {
     if (err) {
@@ -97,6 +90,8 @@ require('./modules/docker/docker')(app);
 require('./modules/admin/admin')(app);
 //  QA   ====================================================================
 require('./modules/QA/qa')(app);
+//EA ===============================================================================
+require('./modules/Ea/ea')(app);
 //  Subscriptions   ====================================================================
 require('./modules/subs/subscriptions');
 

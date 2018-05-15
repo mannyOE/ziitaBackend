@@ -16,6 +16,18 @@ var moduleSchema = new Schema({
         type: String, // Name of description
         required: true
     },
+    ea:{
+        type:Boolean,
+    default:false
+    },
+    recent_files:[{
+        time:String,
+        path:String
+    }],
+    on_ea:{
+        type:Number,
+        default:0
+    },
     method: [{
         user_Id: String,
         method_name: String,
@@ -35,7 +47,6 @@ var moduleSchema = new Schema({
             status:{
                 type:Number,
                 default: 0,
-
             }
         }],
         completed: {
@@ -43,20 +54,26 @@ var moduleSchema = new Schema({
             default: 0
         },
     }],
+
        test: [
             {
-            case: String,
-            status:{
-                type:Number,
-                default: 0,
-
-            }
+              case: String,
+              acceptance: String,
+              status:{
+                  type:Number,
+                  default: 2,
+              },
+              issue: {
+                type: Boolean,
+                default: false
+              }
         }
        ],
-    quaAssId:String,
+    tag:String,
     issues: [
             {
                 user_Id: String,
+                type:Number,
                 issue: String,
                 date: Number
             }
@@ -111,10 +128,12 @@ var moduleSchema = new Schema({
         type: Number //  Server side
     },
     status: {
-        type: Number, //  Server side
+        type: Number, //  Server side 1=New, 2=Submitted, 3=Done, 4=Progress
         default: 1
     },
+    link: String,
     access_files: [String],
+    sprint: {type: Number, required: true, default: 1},
 });
 
 module.exports = mongoose.model('Module', moduleSchema);

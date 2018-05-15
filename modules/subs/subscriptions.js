@@ -4,8 +4,6 @@ var User      = require('../../database/models/user.js');
 var Wallet      = require('../../database/models/Wallet.js');
 var Price      = require('../../database/models/pricing.js');
 var Transactions      = require('../../database/models/Transactions.js');
-var developers = require('../../database/models/Team.js');
-var managers  = require('../../database/models/manager.js');
 var functions = require('../../util/functions');
 var date = require('node-datetime');
 var dt = date.create();
@@ -26,10 +24,8 @@ var started = false;
         async.each(userResult, (eachUser, callback)=>{
             var teamId = eachUser.team_Id;
             var email = eachUser.Email;
-            developers.find({team_Id: teamId}, (err, developerResult)=>{
-                if(err){throw err;}
-                managers.find({team_Id: teamId}, (err, managerResult)=>{
-                    var teamSize = developerResult.length + managerResult.length;
+                User.find({team_Id: teamId,type:{$ne:1}}, (err, managerResult)=>{
+                    var teamSize = managerResult.length;
                     Price.findOne({range_max: {$gt: teamSize+1}, range_min: {$lt: teamSize+1}})
                     .lean().exec((err, priceResult)=>{
                         if(err){throw err;}
@@ -65,6 +61,7 @@ var started = false;
                             }else{
                                 var hours1 = Math.floor(Math.abs(dt.now()-BillResult.last_bill)/36e5);
                                 var hours2 = Math.abs(dt.now()-BillResult.paid_time)/36e5;
+                                // console.log(Math.floor(hours2/200)>0);
                                 var i = 0;
                                 while(i < hours1){
                                     let currentTotal = teamSize * rate;
@@ -84,77 +81,95 @@ var started = false;
                                                 });
                                             }
                                         });
-                                        console.log("Billing Done");
+
                                     });
                                     i++;
                                 }
 
                                 if(Math.floor(hours2/240)>0){
                                     Wallet.findOne({Id: teamId}, (err, walletResult)=>{
-                                        if(err){throw err;}
-                                        if(walletResult.pending >= walletResult.balance){
-                                            walletResult.pending = walletResult.pending - walletResult.balance;
-                                            walletResult.balance = 0;
-                                            BillResult.amount = walletResult.pending;
-                                            BillResult.paid_time = dt.now();
-                                            if(walletResult.pending > rate_monthly){
-                                               var mail = {};
-                                                mail.subject = "Account Blocked";
-                                                mail.email = email;
-                                                mail.content = "<p>Good Day,</p><p>We are sad to inform you that your wallet has become too low to continue on our platform and so your team has been blocked from the platform. Please top-up your e-wallet immediately.</p><p>Thank You for Your Patronage.<br>Zeedas Management</p>";
-                                                sendEmail(mail);
 
-                                                // lock out
-                                                lock_users(teamId);
-                                            }else{
-                                                var mail = {};
-                                                mail.subject = "Insufficient Balance Reminder";
-                                                mail.email = email;
-                                                mail.content = "<p>Good Day,</p><p>We are sad to inform you that your wallet is running low of funds. Your team will be locked out of our platform if you don't top-up your e-wallet.</p><p>Thank You for Your Patronage.<br>Zeedas Management</p>";
-                                                sendEmail(mail);
-                                            }
+                                        if(err){throw err;}
+                                        // console.log(walletResult);
+                                        // if no wallet Found
+
+
+                                        if(walletResult){
+                                          if(walletResult.pending >= walletResult.balance){
+                                              walletResult.pending = walletResult.pending - walletResult.balance;
+                                              walletResult.balance = 0;
+                                              BillResult.amount = walletResult.pending;
+                                              BillResult.paid_time = dt.now();
+                                              if(walletResult.pending > rate_monthly){
+                                                walletResult.blocked = true;
+                                                 var mail = {};
+                                                  mail.subject = "Account Blocked";
+                                                  mail.email = email;
+                                                  mail.content = "<p>Good Day,</p><p>We are sad to inform you that your wallet has become too low to continue on our platform and so your team has been blocked from the platform. Please top-up your e-wallet immediately.</p><p>Thank You for Your Patronage.<br>Zeedas Management</p>";
+                                                  sendEmail(mail);
+
+                                                  // lock out
+                                                  lock_users(teamId);
+                                              }else{
+                                                  var mail = {};
+                                                  mail.subject = "Insufficient Balance Reminder";
+                                                  mail.email = email;
+                                                  mail.content = "<p>Good Day,</p><p>We are sad to inform you that your wallet is running low of funds. Your team will be locked out of our platform if you don't top-up your e-wallet.</p><p>Thank You for Your Patronage.<br>Zeedas Management</p>";
+                                                  sendEmail(mail);
+                                              }
+                                              var transactions = {};
+                                              transactions.tag = "Bill Payment";
+                                              transactions.type = "Wallet";
+                                              transactions.amount = walletResult.pending;
+                                              transactions.Id = teamId;
+                                              transactions.created_time=dt.format("d-m-Y");
+                                              new Transactions(transactions).save((err)=>{if(err){throw err;}});
+                                              walletResult.save((err)=>{if(err){throw err;}});
+                                              BillResult.save((err)=>{if(err){throw err;}});
+                                          }else{
+                                            console.log(walletResult);
                                             var transactions = {};
                                             transactions.tag = "Bill Payment";
                                             transactions.type = "Wallet";
                                             transactions.amount = walletResult.pending;
                                             transactions.Id = teamId;
                                             transactions.created_time=dt.format("d-m-Y");
-                                            new Transactions(transaction).save((err)=>{if(err){throw err;}});
-                                            walletResult.save((err)=>{if(err){throw err;}});
+                                            walletResult.pending = 0;
+                                            walletResult.balance = walletResult.balance - walletResult.pending;
+                                            BillResult.amount = walletResult.pending;
+                                            BillResult.paid_time = dt.now();
+
+                                            if(walletResult.balance > rate*teamSize){
+                                                // send email
+                                                var mail = {};
+                                                mail.subject = "Insufficient Balance Reminder";
+                                                mail.email = email;
+                                                mail.content = "<p>Good Day,</p><p>We are sad to inform you that your wallet is running low of funds with only ₦"+walletResult.balance+". Your team will be locked out of our platform if you don't top-up your e-wallet.</p><p>Thank You for Your Patronage.<br>Zeedas Management</p>";
+                                                sendEmail(mail);
+                                              }
+
+                                            new Transactions(transactions).save((err)=>{if(err){throw err;}});
                                             BillResult.save((err)=>{if(err){throw err;}});
+                                            walletResult.save((err)=>{if(err){throw err;}});
+                                          }
                                         }else{
-                                          var transactions = {};
-                                          transactions.tag = "Bill Payment";
-                                          transactions.type = "Wallet";
-                                          transactions.amount = walletResult.pending;
-                                          transactions.Id = teamId;
-                                          transactions.created_time=dt.format("d-m-Y");
-                                          walletResult.pending = 0;
-                                          walletResult.balance = walletResult.balance - walletResult.pending;
-                                          BillResult.amount = walletResult.pending;
-                                          BillResult.paid_time = dt.now();
+                                          newwallet = {};
+                                          newwallet.created = new Date().getMilliseconds;
+                                          newwallet.Id = teamId;
+                                          newwallet.blocked = true;
 
-                                          if(walletResult.balance > rate*teamSize){
-                                              // send email
-                                              var mail = {};
-                                              mail.subject = "Insufficient Balance Reminder";
-                                              mail.email = email;
-                                              mail.content = "<p>Good Day,</p><p>We are sad to inform you that your wallet is running low of funds with only ₦"+res.balance+". Your team will be locked out of our platform if you don't top-up your e-wallet.</p><p>Thank You for Your Patronage.<br>Zeedas Management</p>";
-                                              sendEmail(mail);
-                                            }
+                                          Wallet.create(newwallet, function (err, user) {
 
-                                          new Transactions(transaction).save((err)=>{if(err){throw err;}});
-                                          BillResult.save((err)=>{if(err){throw err;}});
-                                          walletResult.save((err)=>{if(err){throw err;}});
+                                          });
                                         }
+
                                     });
-                                    console.log("Payment Done");
                                 }
                             }
                         });
                     });
                 });
-            });
+
             callback();
         }, (err)=>{
           if(err){console.log("Failed");}

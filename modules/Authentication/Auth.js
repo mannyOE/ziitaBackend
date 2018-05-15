@@ -8,11 +8,12 @@ var roles            = require('../../database/models/roles.js');
 var counter        = require('../../database/models/counter.js');
 var Invites         = require('../../database/models/Invited.js');
 var User           = require('../../database/models/user.js');
-var Developer      = require('../../database/models/developers.js');
-var Manager        = require('../../database/models/manager.js');
+var Wallet      = require('../../database/models/Wallet.js');
 var shortid        = require('shortid');
 var baseUrl         = "http://localhost:8080";
 var isLoggedIn     = functions.isLoggedIn;
+var async     = require('async');
+
 
 
 module.exports = function (app) {
@@ -20,6 +21,8 @@ module.exports = function (app) {
 
     app.post('/resend_confirmation', function (req, res) {
         var email = req.body.Email;
+        email = email?email.toLowerCase():"";
+
         User.findOne({Email: email}, function (err, user) {
             var token = bcrypt.hashSync(shortid.generate()).toString().replace(/[^\w]/g, "");
 
@@ -87,21 +90,31 @@ module.exports = function (app) {
 
     app.post('/signup', function (req, res) {
 
+
+
   var  token = bcrypt.hashSync(shortid.generate()).replace(/[^\w]/g, "");;
 
     Invites.findOne({Id: req.body.invite_Id},(err, inviteDetail)=>{
 
           var Email = '';
-          if(req.body.Email.length === 0 && inviteDetail){
+          if(inviteDetail){
             Email = inviteDetail.Email
           }
 
+            let email = Email?Email:req.body.Email;
+            email = email.toLowerCase();
+
             User.findOne({
-              Email: req.body.Email || Email
+              Email: email
             }, function (err, user) {
-              console.log("1", user)
-              if (err)
-                return done(err);
+
+              if (err) {
+                  res.send({
+                      status: false,
+                      message: "Error searching for user"
+                  });
+                  return;
+              }
 
               if (user == null) {
             var sequenceName = "users";
@@ -126,7 +139,7 @@ module.exports = function (app) {
                 var type = parseInt(req.body.type);
 
                 //append email of invite since its not provided from signup
-                req.body.Email = req.body.Email || Email
+                req.body.Email = email;
 
                 if(type == 1){
                     req.body.team_Id = req.body.Id;
@@ -144,7 +157,7 @@ module.exports = function (app) {
 
               User.create(req.body, function (err, user) {
                 if (err) {
-
+console.log(err);
                   res.send({
                     status: false,
                     message: "Account Already Exist"
@@ -166,16 +179,15 @@ module.exports = function (app) {
 
                           };
 
+                         //SET PERMISSION FOR DIFFERENT USER LEVEL
                          if (type == 1) {
-                              functions.create_team(req.body);
-                         } else if (type == 2) {
-                              functions.create_managers(req.body);
-                              functions.remove_Invited(query);
-                         } else if (type == 3) {
-                              functions.create_developers(req.body);
-                              functions.remove_Invited(query);
-                         }
 
+                         } else if (type == 2) {
+                         } else if (type == 3) {
+                         }
+                         if(type != 1) {
+                             functions.remove_Invited(query);
+                         }
                          var mail = {};
                          mail.template   = "mail";
                          mail.subject    = "Confirmation Mail";
@@ -250,7 +262,7 @@ module.exports = function (app) {
   app.post('/login', function (req, res) {
 
       // console.log(req.path);
-
+      req.body.Email = req.body.Email?req.body.Email.toLowerCase():"";
     User.findOne({
       'Email': req.body.Email
     }, function (err, user) {
@@ -294,17 +306,66 @@ module.exports = function (app) {
               // get permissions and send along with the payload
               roles.find({Id: user.Id}, (err, perms)=>{
                 // if no permissions, set default permissions
-                if(!perms){
-                  functions.checks(user.Id, user.type);
+                // console.log(perms.length);
+                if(perms.length < 2){
+                  // console.log("creating default perms",user.Id, user.type);
+                  // functions.checks(user.Id, user.type);
+                  var perm;
+                  var save;
+                  if(user.type === '1'){
+                    perm = functions.permUtil.permissionsArray.filter(e=>e.default_client === true);
+                  }
+                  if(user.type === '2'){
+                    perm = functions.permUtil.permissionsArray.filter(e=>e.default_pm === true);
+                  }
+                  if(user.type === '3'){
+                    perm = functions.permUtil.permissionsArray.filter(e=>e.default_dev === true);
+                  }
+                  async.each(perm, (perm, callback)=>{
+                    save = {'Id': user.Id, 'Permission': perm.Permission, 'roads': perm.roads, 'State': true};
+                    roles.create(save, (err, rules)=>{
+                      if(!err){
+                        // console.log("Done");
+                        callback();
+                      }
+                    });
+
+                  }, (err)=>{
+                        roles.find({Id: user.Id}, (error, result)=>{
+                          if(!error){
+                            Wallet.findOne({Id: user.team_Id}, (err, walletResult)=>{
+                              res.send({
+                                status: true,
+                                message: "Login Successful",
+                                type: user.type,
+                                token: token,
+                                dis_user: result,
+                                userStatus: user.status,
+                                blocked: false,
+                                // blocked: walletResult.blocked,
+                              });
+                            });
+                          }
+                        })
+                  });
+
+
+
+                }else{
+                  Wallet.findOne({Id: user.team_Id}, (err, walletResult)=>{
+                    res.send({
+                      status: true,
+                      message: "Login Successful",
+                      type: user.type,
+                      token: token,
+                      dis_user: perms,
+                      userStatus: user.status,
+                      blocked: false,
+                      // blocked: walletResult?walletResult.blocked:false,
+                    });
+                  });
                 }
-                res.send({
-                status: true,
-                message: "Login Successful",
-                type: user.type,
-                token: token,
-                dis_user: perms,
-                userStatus: user.status,
-              });
+
               })
             }
 
@@ -439,14 +500,10 @@ module.exports = function (app) {
 
 
     app.get("/userDelete/:id", (req, res,next)=>{
-      isLoggedIn(req, res, next)
+      isLoggedIn(req, res, next,'manageTeam')
     },function(req, res){
         User.remove({Id: req.params.id}, function(err, mod){
-            Developer.remove({Id: req.params.id}, function(err, mod){
-                Manager.remove({Id: req.params.id}, function(err, mod){
                     res.send({message: "Deleted"});
-                });
-            });
         })
     });
 

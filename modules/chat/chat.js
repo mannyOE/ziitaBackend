@@ -36,8 +36,8 @@ module.exports = function(app){
          */
 
         req.body.Id           = shortid.generate();
-        req.body.updated_time = functions.Create();
-        req.body.created_time = functions.Create();
+        req.body.updated_time = new Date().getTime();
+        req.body.created_time = new Date().getTime();
         Module.create(req.body, function (err, module) {
 
             if (err) {

@@ -3,6 +3,7 @@ var express       = require('express');
 var request       = require('request');
 var app           = express();
 var functions     = require('../../util/functions');
+var Filter     = require('../../util/Filter');
  var terms          = require('../../util/term');
 var http          = require('http').Server(app)
 var isLoggedIn    = functions.isLoggedIn;
@@ -123,123 +124,8 @@ module.exports = function (app) {
         Module.findOne({Id:req.params.Id}, function(err, module) {
             if(err) throw err;
 
-            Projects.findOne({Id: module.project_Id}, function(err, project) {
-
-
-                var server = terms.get_ssh_git(project);
-                var host = server.host;
-                var repo = server.git_url;
-
-                if(!server.host.host){
-                    res.send({status: false, message: "No server setup yet"});
-                    return;
-                }
-
-                if(!project.docker){
-                    res.send({status: false, message: "No Docker File Setup"});
-                    return;
-                }
-
-                var developer_id = module.developer_Id;
-                var project_id = module.project_Id;
-                var project_port = project.project_port;
-
-
-                if(!project_port || !repo){
-                    res.send({status: false, message: "Server not fully setup"});
-                    return;
-                }
-
-                project_id = project_id.toLowerCase();
-
-                console.log("Connecting to ", host);
-
-                var base_url = "zeedas";
-                var tag = developer_id + "" + project_id;
-                tag = tag.toLowerCase();
-                var ip = "178.62.51.68";
-                ip = "zeedas.com";
-
-                var data = 'mkdir -p '+base_url+'/project_'+project_id+'/developer_'+developer_id+'; cd $_; next\
-    pwd; next\
-    if test -d '+base_url+'; \
-    then echo "Already Cloned"; next\
-    docker ps | grep '+ tag+'; else next\
-    docker ps -a; next\
-    wget '+hosturl+'/docker_file/'+module.project_Id+' -O Dockerfile --no-check-certificate; \
-    git clone -b developer_'+developer_id+' '+repo+' '+base_url+'; \
-    docker build -t "'+project_id+'" . next\
-    docker run -d --name "'+tag+'" -p $port:'+project_port+' -v $(pwd)/'+base_url+':/usr/src/app '+project_id+' next\
-    fi;';
-                var send = data.split("next");
-
-                var round = 0;
-                var path = "";
-                var sent = false;
-                var port = "";
-                var socket_port = 10000;
-
-                terms.ssh(host, send, function (command, response, sshObj) {
-
-                        console.log("Executed => ", command);
-                        console.log("Response => ", response);
-
-                        if (command.indexOf("docker ps -a") > -1) {
-                            var ports = response.match(/\b\d{4}\b/g);
-                            if(ports){
-                                ports.push(10000);
-                            }
-                            port = terms.generatePort(ports);
-                            sshObj.commands.unshift("ufw allow $port;");
-                            //console.log(command + " => " + response + "[ENDED]");
-                            sshObj.commands.unshift("port=" + port + ";");
-                        }
-
-                        if (command.indexOf("pwd;") > -1) {
-                            var p  = response.split("\n");
-                            path = p[1];
-                            path = path.trim()+"/"+base_url;
-                        }
-
-                        if(command.indexOf("docker ps | grep") > -1){
-                            round++;
-                            port = response.match(/\b\d{4}\b/g);
-                            if(port){
-                                var link = "http://"+host.host+":"+port[0];
-                                var soc = host.host+":"+socket_port;
-                                //console.log("socket", soc, socket_port);
-                                res.send({status: true, link: link, path: path, mysocket: soc});
-                                sent = true;
-                            }else{
-                                if(round == 1) {
-                                    sshObj.commands.push("docker start "+tag);
-                                    sshObj.commands.push("docker ps | grep "+tag);
-
-                                }else{
-                                    res.send({status: false, link: "Link can not be found"});
-                                    sent = true;
-                                }
-                            }
-                        }
-                    },
-                    function (sessionText, sshObj) {
-                        console.log("..........ended = >" + sessionText);
-                        if(!sent) {
-                            var link = "http://"+host.host+":"+port;
-                            var soc = host.host+":"+socket_port;
-                            res.send({status: true, link: link, path: path, mysocket: soc});
-                        }
-                        //sent = true;
-                    },
-                    function(error){
-                        console.log("..........error = >" + error);
-                        if(!sent) {
-                            res.send({status: false, error: error});
-                        }
-                    }
-                );
-
-
+            functions.createDocker(module, "developer", function(response){
+                res.send(response);
             });
 
         });
@@ -251,49 +137,13 @@ module.exports = function (app) {
         Module.findOne({Id:req.params.Id}, function(err, module) {
             if(err) throw err;
 
-            Projects.findOne({Id: module.project_Id}, function(err, project) {
+            functions.destroyDocker(module, "developer", function(response){
+                res.send(response);
+            })
 
-
-                var server = terms.get_ssh_git(project);
-                var host = server.host;
-
-                if(!server.host.host){
-                    res.send({status: false, message: "No server setup yet"});
-                    return;
-                }
-
-                var developer_id = module.developer_Id;
-                var project_id = module.project_Id;
-
-
-                project_id = project_id.toLowerCase();
-
-                var base_url = "zeedas";
-                var tag = developer_id + "" + project_id;
-                tag = tag.toLowerCase();
-
-                var data = 'docker stop '+tag+'; next\
-    docker rm '+tag+'; next\
-    cd '+base_url+'/project_'+project_id+'; next\
-    rm -R developer_'+developer_id+';';
-                var send = data.split("next");
-
-                terms.ssh(host, send, function (command, response, sshObj) {
-
-                    }
-                    ,
-                    function (sessionText, sshObj) {
-                        //console.log("..........ended = >" + sessionText);
-                        res.send({status: true, message: "Successfully Deleted"});
-                    }
-                );
-
-
-            });
 
         });
     });
-
 
 //GET DOCKER FILE
    app.get("/docker_file/:Id", function(req, res){
@@ -394,9 +244,45 @@ module.exports = function (app) {
         });
     });
 
+    app.post("/test_mail", function(req, res){
+         var id = req.body.id;
+         var status = req.body.status;
+         Module.findOne({Id: id}, function(err, module){
+
+             if(status) {
+                 module.status = status;
+                 module.save(function(err){
+                     console.log(err)
+                 });
+             }
+             res.send(module);
+         });
+    });
+
     //TEST MAIL
-    app.post('/test_mail', function (req, res) {
+    app.get('/test_mail', function (req, res) {
         /** Add a new skill */
+
+
+        return;
+        Filter.recordTimelineLog().then();
+        return;
+        var mz = async function(){
+            debugger;
+           var mod = await Module.findOne({Id: "aaaaaaaa"}).exec();
+            console.log(mod);
+           console.log("next");
+           var project = await Projects.findOne({}).exec();
+           // console.log(project);
+           return project;
+        };
+
+        mz().then(function(p){
+            console.log("again", p);
+        });
+
+
+        return;
         console.log("Sending command.............");
         var mail            = {};
         var baseUrl = "zeedas.com";

@@ -11,7 +11,8 @@ var Files = new Schema({
     file_url: String,
     file_source: String,
     shared_with: [String],
-    file_team: String,
+    file_project: String,
+    isGeneral: {type: Boolean, default: false},
     file_uploaded: {type: Date, default: Date.now },
 
 });

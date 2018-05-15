@@ -1,6 +1,14 @@
 var express         = require('express');
 var app             = express();
 var functions       = require('../util/functions');
+var timelineLogModel = require('../database/models/timelineLogs');
+var timelineTempModel = require('../database/models/timelineTemp');
+var projectModel    = require('../database/models/projects.js');
+var moduleModel      = require('../database/models/module.js');
+var userModel      = require('../database/models/user');
+var categoryModel      = require('../database/models/category');
+var durationModel      = require('../database/models/duration');
+var settingModel      = require('../database/models/settings');
 var lessdep         = [];
 var lessdep_ids     = [];
 var all_modules     = [];
@@ -129,88 +137,141 @@ var search_module = function(all_module,module_Id,level){
   Data is the content of the modules that just got filtered by denppendencies
   number is the number of developer on this project
 */
+//GET DEVELOPER TIME
+function developerTime(){
 
-var by_developers = function(pushedData, project, developers, categories){
+    this.vDay = 0; this.devId = 0; this.actualDevTime = 0;
+    this.spentHour = {};
+    this.init = function(){
+        if (!this.spentHour[this.vDay]) {
+            this.spentHour[this.vDay] = {};
+        }
+        if(!this.spentHour[this.vDay][this.devId]){
+            this.spentHour[this.vDay][this.devId] = {max: this.actualDevTime, timeLeft: this.actualDevTime};
+        }
+    };
+
+    this.getTimeLeft = function(){
+        this.init();
+        return this.spentHour[this.vDay][this.devId]['timeLeft'];
+    };
+
+    this.maxTime = function(){
+        this.init();
+        return this.spentHour[this.vDay][this.devId]['max'];
+    }
+
+    this.setTimeLeft = function(timeLeft){
+        this.init();
+        this.spentHour[this.vDay][this.devId]['timeLeft'] = timeLeft;
+        return timeLeft;
+    }
+
+
+}
+
+var spentHour = {};
+
+var by_developers = function(pushedData, project, developers, categories, includeAll, start_day){
     var sData = [];
+    var doneModules = [];
+    let notMatchModules = [];
     var sDataLoop = [];
     var skills = {};
     var maxHour = 2;
     var devCount = developers.length || 1;
+    var moduleById = {};
+    var developersById = {};
+
+    console.log("DATE: ", new Date());
 
 //return sData;
-    for(var i in categories){
+    for(let i in categories){
         skills[categories[i].Id] = categories[i];
     }
 
-
-    for(var i in pushedData){
-        var me = pushedData[i].toJSON();
+    for(let i in pushedData){
+        let me = pushedData[i].toJSON();
         me.skills = skills[pushedData.category] || [];
         me.time = me.dev_time;
-        sData.push(me);
+        moduleById[me.Id] = me;
+
+        if(me.status == 3){
+            doneModules.push(me);
+        }else{
+            sData.push(me);
+        }
         //sDataLoop.push(me);
     };
 
+    for(let i in developers){
+        developersById[developers[i].Id] = developers[i];
+    }
+
     var events = [];
-
     var newData = {};
-
-    var day = 1;
+    var day = 0;
     var data = {};
 
-    var spentHour = {};
+    spentHour = {};
+
 debugger;
+    var dTime = new developerTime();
+
     while(sData.length > 0){
-
+        day++;
         data[day] = data[day] || {};
-        for(var i = 1; i <= maxHour; i++){
-            data[day][i] = [];
-        }
 
-        var devRoundCount = 1;
+        var devRoundCount = 0;
         do {
+            devRoundCount++;
 
-
+            var matchFound = false;
             developers.forEach(function (dev) {
-                if(dev.Id == "000052")
-                    return true;
+                // if(dev.Id == "000052")
+                //     return true;
 
                 var breakLoop = false;
 
                 var actualDevTime = 10;
                 var vDay = day;
-                if (!spentHour[vDay]) {
-                    spentHour[vDay] = {};
-                }
                 var devId = dev.Id;
 
-                var devTime = spentHour[vDay][devId] || actualDevTime;
-                spentHour[vDay][devId] = devTime;
+                dTime.vDay = vDay;
+                dTime.actualDevTime = actualDevTime;
+                dTime.devId = devId;
+
+                var devTime = dTime.getTimeLeft();
+
+                if(devTime == 0){
+                    return true;
+                }
+
 
                 //LOOP THROUGH THE MODULES (LP3)
                 for (var j in sData) {
-                    if (!spentHour[vDay]) {
-                        spentHour[vDay] = {};
+                    if(sData[j].developer_Id && developersById[sData[j].developer_Id] && sData[j].developer_Id != devId){
+                        continue;
+                    }else{
+                        matchFound = true;
                     }
-                    devTime = spentHour[vDay][devId] || actualDevTime;
-                    spentHour[vDay][devId] = devTime;
+                    devTime = dTime.getTimeLeft();
+                    sData[j].time = sData[j].time || 10;
+
 
                     //CONTINUE LOOP TILL THE MODULE TIME IS EXHAUSTED
                     while (sData[j].time > 0) {
-                        if (!spentHour[vDay]) {
-                            spentHour[vDay] = {};
-                        }
-                        devTime = spentHour[vDay][devId] || actualDevTime;
-                        spentHour[vDay][devId] = devTime;
+                        devTime = dTime.getTimeLeft();
 
                         var moduleTime = sData[j].time;
                         data[vDay] = data[vDay] || {};
                         //LOOP THROUGH THE MAXIMUM HOUR (LP2)
                         var found = false;
-                        for (var i = 1; i <= maxHour; i++) {
-
+                        var max = dTime.maxTime();
+                        for (var i = (max - dTime.getTimeLeft()) + 1; i <= max; i++) {
+                            //if(sData[j].time == sData[j].dev_time)
                             //Break when dev time is zero
-                            if (spentHour[vDay][devId] == 0) {
+                            if (dTime.getTimeLeft() == 0) {
                                 break;
                             }
                             var list = data[vDay][i] || [];
@@ -222,8 +283,14 @@ debugger;
                             });
                             if (!found) {
                                 devTime--;
-                                spentHour[vDay][devId] = devTime;
-                                list.push({developerId: devId, moduleId: sData[j].Id});
+                                dTime.setTimeLeft(devTime);
+                                // console.log("TimeLeft", devTime, devId);
+                                let save = {developerId: devId, moduleId: sData[j].Id, last_day: moduleTime==0?true:false};
+                                if(includeAll){
+                                    save = Object.assign({},sData[j], save);
+                                }
+
+                                list.push(save);
                                 data[vDay][i] = list;
                                 moduleTime = moduleTime - 1;
 
@@ -236,14 +303,15 @@ debugger;
                                 }
 
                             }else{
-                                console.log("found----", devRoundCount);
+                                // console.log("found----", devRoundCount);
                                 if(devRoundCount == 1){
                                     breakLoop = true;
                                 }
                             }
 
-                            if (maxHour == i && moduleTime > 0) {
+                            if (max == i && moduleTime > 0) {
                                 vDay++;
+                                dTime.vDay = vDay;
                                 break;
                             }
 
@@ -270,6 +338,7 @@ debugger;
 
                     if (devTime == 0 && moduleTime > 0) {
                         vDay++;
+                        dTime.vDay = vDay;
                     }
                 }//End of foreach sData loop (lp3);
 
@@ -277,81 +346,109 @@ debugger;
 
             var timeStillLeft = false;
             //CHECK WHETHER DEVELOPER STILL HAVE TIME LEFT
-            for(var id in spentHour[day]){
-                var devTimeLeft = spentHour[day][id];
-                if(devTimeLeft > 0){
+            for(var id in dTime.spentHour[day]){
+                var dev = dTime.spentHour[day][id];
+                if(dev.timeLeft && dev.timeLeft > 0){
                     timeStillLeft = true;
                     break;
                 }
             }
 
+            // console.log("TIME", dTime.spentHour, sData.length);
+
             //Continue Loop Through Developer Loop (Nested Loop) till no time left for the day or no module left
             devRoundCount++;
-        }while(timeStillLeft > 0 && sData.length > 0);
+        }while(matchFound && timeStillLeft && sData.length > 0);
 
     }
-    console.log("end", day);
 
-    return data;
+    // console.log("end", day);
+
+    // return data;
 
     var updatedData = [];
+    let today = start_day?new Date(start_day):new Date();
+    let date = new Date();
+
     for(var i in data){
         var value = {};
         for(var h in data[i]){
             var dt = data[i][h];
             for(var m in dt){
                 if(!value[dt[m].moduleId]){
-                    value[dt[m].moduleId] = {developerId: dt[m].developerId, hours: 1};
+                    var devName = developersById[dt[m].developerId]?(developersById[dt[m].developerId]['first_name']+" "+developersById[dt[m].developerId]['last_name']):"No Developer Found";
+                    var module = moduleById[dt[m].moduleId]?moduleById[dt[m].moduleId]:{};
+                    var moduleName = module['module_name'];
+                    var actual_time = module['actual_time'] || 0;
+
+                    let save = {developerId: dt[m].developerId, developer: devName, hours: 1, module_name: moduleName, time_spent: round(actual_time/ (60 * 60)), completed: false, last_day: dt[m].last_day};
+                    if(includeAll){
+                        save = Object.assign({},module, save);
+                    }
+                    value[dt[m].moduleId] = save;
                 }else{
                     var hours = value[dt[m].moduleId]['hours'];
                     value[dt[m].moduleId]['hours'] = hours + 1;
                 }
             }
         }
-        var date = new Date();
-        date.setDate(date.getDate() + parseInt(i) - 1);
+
+        date.setDate(today.getDate() + parseInt(i) - 1);
 
         var add = {date: date.toDateString(), modules: value};
         updatedData.push(add);
     }
 
-    return updatedData;
-
-    var found_ids = [];
-return sData;
-    var found = true;
-    while(found) {
-        found = false;
-        for (var i = 0; i < data.length; i++) {
-            var module = data[i];
-            for (var j = 0; j < module.dependency.length; j++) {
-                var dep = module.dependency[j];
-                for (var x = 0; x < data.length; x++) {
-                    if (dep.module_Id == data[x].Id) {
-                        var module2 = data[x];
-                        var unique = i+"-"+x;
-                        if (x > i && found_ids.indexOf(unique) == -1) {
-                            data[i] = module2;
-                            data[x] = module;
-                            found = true;
-                            found_ids.push(unique);
-                            break;
-                        }
-                    }
-                }
-                if(found)
-                    break;
-            };
-            //if(row.module_Id == b.Id){
-            //    return 1;
-            //}
+    let sent_module = function(module){
+        let devName = developersById[module.developer_Id]?(developersById[module.developer_Id]['first_name']+" "+developersById[module.developer_Id]['last_name']):"No Developer Found";
+         let save = {developerId: module.developer_Id, developer: devName, hours: module.dev_time, module_name: module.module_name, time_spent: round((module.actual_time || 0)/(60 * 60)), completed: module.status == 3?true:false, last_day: true};
+        if(includeAll){
+            save = Object.assign({}, module, save);
         }
-        ;
-    }
-    return data;
 
+        return save;
+
+    };
+
+    for(var i in doneModules){
+        let module = doneModules[i];
+        let date = new Date(module.date_completed).toDateString();
+        let found = false;
+        for(let j in updatedData){
+            if(updatedData[j].date == date){
+                let value = updatedData[j]['modules'];
+                value[module.Id] = sent_module(module);
+                found = true;
+                updatedData[j]['modules'] = value;
+                break;
+            }
+        }
+        if(!found){
+            let value = {};
+            value[module.Id] = sent_module(module);
+            let task = {date: date, modules: value};
+            updatedData.unshift(task);
+        }
+    }
+
+
+    console.log("sorting DATE: ", new Date());
+    var dData = updatedData.sort(function(a, b){
+        let aDate = new Date(a.date).getTime();
+        let bDate = new Date(b.date).getTime();
+        if(aDate > bDate){
+            return 1;
+        }
+        return -1;
+    });
+    console.log("END DATE: ", new Date());
+    return dData;
 };
 
+var round = function(value, decimals) {
+    decimals = decimals?decimals:0;
+    return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+}
 var by_category = function(data){
 
 };
@@ -587,16 +684,201 @@ var calculateDevSpeed = function(modules) {
     result.timeSpent = timeSpent;
 
 
-    console.log("current date",new Date());
+
     return result;
 }
+
+//GET ALL SETTINGS FOR A TEAM. SET isTeamId to true if userId is a team_Id
+var settings_get = async function(teamId, isUserId){
+    if(isUserId){
+        var user = await userModel.findOne({Id: teamId}).exec();
+        if(!user){
+            return {};
+        }
+        teamId = user.team_Id;
+    }
+
+    let setting = await settingModel.findOne({team_Id: teamId}).exec();
+
+    return setting || {};
+};
+
+//SAVE SETTINGS USING USER ID. SET isTeamId to true if userId is a team_Id
+var settings_save = async function(team_Id, key, value, isUserId){
+    if(isUserId){
+        let user = await userModel.findOne({Id: userId}).exec();
+        if(!user){
+            return false;
+        }
+        team_Id = user.team_Id;
+    }
+
+    let setting = await settingModel.findOne({team_Id: team_Id}).exec();
+
+    let save = null;
+
+    if(setting){
+        setting = {};
+        setting[key] = value;
+        save = await settingModel.create({team_Id: team_Id, settings: setting}).exec();
+    }else{
+        setting[key] = value;
+        save = await settingModel.update({team_Id: team_Id},{$set:{settings: setting}}).exec();
+    }
+
+    return save;
+};
+
+//SAVE TIMELINE TEMPORARY FOR COMPARISON
+var timelime_temp_update = async function(project_id, data){
+
+    let temp = await timelineTempModel.findOne({project_Id: project_id}).exec();
+
+    let save = null;
+
+    if(temp){
+        save = await settingModel.create({project_Id: project_id, timeline: data}).exec();
+    }else{
+        save = await settingModel.update({project_Id: project_id},{$set:{timeline: data}}).exec();
+    }
+
+    return save;
+};
+
+var timelime_temp_get = async function(project_id){
+
+    let temp = await timelineTempModel.findOne({project_Id: project_id}).exec();
+
+    return temp?temp.timeline:[];
+}
+
+var recordTimelineLog = async function(){
+    let today = new Date().toDateString();
+    let yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday = yesterday.toDateString();
+
+    let projects = await projectModel.find({}).exec();
+
+    var todayModules = function(modules){
+        for(let i in modules){
+            if(modules[i].date == today){
+                return modules[i].modules;
+            }
+        };
+        return null;
+    };
+
+    for(var i in projects){
+        let project = projects[i];
+
+        // console.log(project.company_Id);
+
+        let sprint = 1;
+        //Fetch all sprints for the project
+        let my_sprints = await moduleModel.aggregate({$group:{_id: '$sprint'}}).exec();
+
+        let sprints = my_sprints || [];
+        //Rearrange the sprints in ascending order
+        sprints = sprints.sort(function(a, b){
+            if(a._id > b._id){
+                return 1;
+            }
+            return -1;
+        });
+
+        let start_date = new Date().getTime();
+        for(let i in sprints) {
+            let sprint = sprints[i]._id;
+            let timelineLog = await timelineLogModel.findOne({project_Id: project.Id, date: today, sprint: sprint}).exec();
+
+
+            let modules = await moduleModel.find({project_Id: project.Id}).exec();
+            let developers = await userModel.find({Id: {$in: project.team}, type: 3}).exec();
+            let categories = await categoryModel.find({team_Id: project.company_Id}).exec();
+
+            let data = by_dependency(modules);
+            data = by_developers(data, project, developers, categories, true);
+
+
+            if (timelineLog) {
+                let update = await timelime_temp_update(project.Id, data);
+                continue;
+            }
+
+            let previous_timeline = await timelime_temp_get(project.Id);
+
+            let p_modules = todayModules(previous_timeline);
+
+            let n_modules = todayModules(data);
+
+            if (p_modules && n_modules) {
+                for (let p in p_modules) {
+                    let p_m = p_modules[p];
+                    for (let n in n_modules) {
+                        let n_m = n_modules[n];
+                        if (p == n && p_m.last_day && !p_m.completed) {
+                            let record = {
+                                project_Id: project.Id,
+                                sprint: sprint,
+                                date: today,
+                                updated_time: new Date().getTime(),
+                                module_Id: p
+                            };
+                            let issue = "";
+                            if (n_m.status == 0) {
+                                issue = "Module Not been assigned to a developer";
+                            }
+
+                            if (n_m.status == 1) {
+                                issue = "Module has not been accepted by the developer";
+                            }
+
+                            if (n_m.status == 4) {
+                                issue = "Module is still in progress";
+                            }
+
+                            if (n_m.status == 4) {
+                                let duration = durationModel.findOne({module_Id: n, date: yesterday}).exec();
+                                let timeSpentYesterday = duration ? 0 : Math.floor(duration.duration / 3600);
+
+                                if (p_m.status == 2) {
+
+                                }
+                            }
+
+                            let save = await timelineLog.create(record).exec();
+
+                            break;
+                        }
+                    }
+                }
+            }
+
+            let update = await timelime_temp_update(project.Id, data);
+
+        }
+
+
+    };
+};
+
+var arrange_by_id = function(data, id){
+    let returnedData = {};
+    for(let i in data){
+        returnedData[data[i][id]] = data[i].toJSON();
+    }
+    return returnedData;
+};
+
+// setInterval(recordTimelineLog, 60 * 60 * 1000);
 
 module.exports = {
     by_dependency:by_dependency,
     by_developers :by_developers,
     by_category   :by_category,
     getTimeLine   : getTimeLine,
-    calculateDevSpeed: calculateDevSpeed
+    calculateDevSpeed: calculateDevSpeed,
+    recordTimelineLog
 
 };
-

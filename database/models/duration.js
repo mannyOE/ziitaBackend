@@ -7,7 +7,7 @@ var duration = new Schema({
     developer_Id: {type: String, required:true},
     module_Id: {type: String},
     date: {type: Date, default: Date.now},
-    duration: Number,
+    duration: Number, //In seconds
     updated_time: Date
 });
 

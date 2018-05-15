@@ -14,7 +14,7 @@ var flutterwave    = new Flutterwave("tk_SPaIbxFtXvokrmzpR7Ww", 'tk_r7OywtPnvb')
 module.exports = function (app) {
 
 
-  app.get('/wallet/:Id', (req, res,next)=>{
+  app.get('/wallet', (req, res,next)=>{
       isLoggedIn(req, res, next, 'manageWallet')
     }, function (req, res) {
 
@@ -32,7 +32,7 @@ module.exports = function (app) {
       } else {
 
         newwallet = {};
-        newwallet.created_time = functions.Create();
+        newwallet.created_time = new Date().getTime();
         newwallet.Id = req.decoded.user;
 
         Wallet.create(newwallet, function (err, user) {
@@ -94,10 +94,13 @@ module.exports = function (app) {
         } else if (data.body.data.responsecode == "00") {
 
           Wallet.update({
-            Id: req.body.Id
+            Id: req.body.Id,
           }, {
             $inc: {
               balance: parseInt(req.body.amount)
+            },
+            $set: {
+              blocked: false
             }
           }, function (err, num) {
 
@@ -107,7 +110,7 @@ module.exports = function (app) {
               tag: "Wallet",
               amount: req.body.amount,
               Id: req.body.Id,
-              created_time: functions.Create()
+              created_time: new Date().getTime()
             }
 
             new Transactions(payload).save();
@@ -197,7 +200,7 @@ module.exports = function (app) {
                   card.ref          = data.transactionreference;
                   card.Auth         = data.authorizeId;
                   card.Id           = Id;
-                  card.created_time = functions.Create();
+                  card.created_time = new Date().getTime();
 
                   // {"status":true,"data":{"no":"5178 6850 4765 3848","year":"2020","month":"07","cvv":"397","cardNo":"3848","ref":"FLW00918616","Auth":"905758","Id":"000020","created_time":"27-1-2018"},"message":"Card added successfully"}
                   // Push details to Cards collection
@@ -228,7 +231,7 @@ module.exports = function (app) {
                     type: "Debit",
                     tag: "Wallet Setup",
                     Id: Id,
-                    created_time: functions.Create()
+                    created_time: new Date().getTime()
                   }, function(err){
                       if ( err ){
                         res.send({
@@ -385,32 +388,29 @@ module.exports = function (app) {
   });
 
 
-  app.get('/Transactions/',(req, res,next)=>{
+  app.get('/Transactions/:page',(req, res,next)=>{
       isLoggedIn(req, res, next, 'manageWallet')
     }, function (req, res) {
 
 
-    Transactions.find({
-      Id: req.decoded.user
-    }, function (err, history) {
-
-      res.send({
-        status: true,
-        data: history
+      Transactions.paginate({}, { page: req.params.page, limit: 10, sort: {created_time: -1} }, function(err, result) {
+          res.send({
+            status: true,
+            data: result.docs,
+            pages: result.pages,
+          });
       });
 
-    });
-
   });
 
-  app.get('/Transactions/:Id/:page',isLoggedIn, (req, res)=>{
-    Transactions.paginate({}, { page: req.params.page, limit: 10, sort: {created_time: -1} }, function(err, result) {
-        res.send({
-          status: true,
-          data: result.docs,
-          pages: result.pages,
-        });
-    });
-  });
+  // app.get('/Transactions/:Id/:page',isLoggedIn, (req, res)=>{
+  //   Transactions.paginate({}, { page: req.params.page, limit: 10, sort: {created_time: -1} }, function(err, result) {
+  //       res.send({
+  //         status: true,
+  //         data: result.docs,
+  //         pages: result.pages,
+  //       });
+  //   });
+  // });
 
 }

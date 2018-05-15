@@ -4,10 +4,7 @@ var app       = express();
 var functions = require('../../util/functions');
 var Filter    = require('../../util/Filter');
 var User      = require('../../database/models/user.js');
-var Team      = require('../../database/models/Team.js');
 var Invited   = require('../../database/models/Invited.js');
-var developers= require('../../database/models/developers.js');
-var managers  = require('../../database/models/manager.js');
 var bcrypt    = require('bcrypt-nodejs');
 var path      = require('path');
 var fs        = require('fs');
@@ -172,7 +169,7 @@ app.post('/update_password', (req, res, next)=>{
 console.log("Type", data.type);
                         if (parseInt(data.type) == 2) {
 
-                            managers.update({Id:req.decoded.user}, {$set:{profile_photo:upload.image.name, profile_thumbnail: filename}}, function(err, num){
+                            User.update({Id:req.decoded.user}, {$set:{profile_photo:upload.image.name, profile_thumbnail: filename}}, function(err, num){
 
                                 res.send({
                                     status:true,
@@ -183,7 +180,7 @@ console.log("Type", data.type);
 
                         }else if(parseInt(data.type) == 3){
 
-                            developers.update({Id:req.decoded.user}, {$set:{profile_photo:upload.image.name, profile_thumbnail: filename}}, function(err, num){
+                            User.update({Id:req.decoded.user}, {$set:{profile_photo:upload.image.name, profile_thumbnail: filename}}, function(err, num){
 
 
                                 res.send({
@@ -196,7 +193,7 @@ console.log("Type", data.type);
 
                         }else{
 
-                            Team.update({Id:req.decoded.user}, {$set:{profile_photo:upload.image.name, profile_thumbnail: filename}}, function(err, num){
+                            User.update({Id:req.decoded.user}, {$set:{profile_photo:upload.image.name, profile_thumbnail: filename}}, function(err, num){
 
 
                                 res.send({
@@ -224,7 +221,7 @@ console.log("Type", data.type);
 
 app.get('/Team',  function(req, res){
 
-  Team.findOne({team_Id:req.params.Id}).populate('user').exec(function(err, data){
+  User.findOne({team_Id:req.params.Id}).populate('user').exec(function(err, data){
     res.send(data)
 });
 
@@ -247,7 +244,7 @@ app.get('/user/delete/:Id',  function(req, res){
 app.post('/Team', function(req, res){
 
 
-     Team.update({}, {$set:{team_name:req.body.name}}, function(err, user){
+     User.update({}, {$set:{team_name:req.body.name}}, function(err, user){
 
      	res.send(user);
 
@@ -294,7 +291,7 @@ app.post('/Team', function(req, res){
 //
 //             obj.created_time = functions.Create;
 //
-//             Team.findOne({
+//             User.findOne({
 //                 Id: obj.team_Id
 //             }, function (err, team) {
 //
@@ -304,7 +301,7 @@ app.post('/Team', function(req, res){
 //                     mail.template = "invite";
 //                     mail.subject = "Invitation";
 //                     mail.first_name = obj.first_name;
-//                     mail.team_name = team.team_name;
+//                     mail.team_name = User.team_name;
 //                     mail.email = obj.Email;
 //
 //                     functions.Ema32il(mail);
@@ -337,7 +334,7 @@ app.post('/Team', function(req, res){
   app.get('/profile/skills', (req, res, next)=>{
     isLoggedIn(req, res, next);
   }, function(req, res){
-      developers.findOne({Id:req.decoded.user}, function(err, data){
+      User.findOne({Id:req.decoded.user}, function(err, data){
            if(err) throw err;
            res.send({status:true, data:data});
       });
@@ -350,7 +347,7 @@ app.post('/Team', function(req, res){
   }, function (req, res) {
     var skill = req.body;
 
-    developers.update({Id:req.decoded.user},{$addToSet:{skills:skill.name}}, function(err, user){
+    User.update({Id:req.decoded.user},{$addToSet:{skills:skill.name}}, function(err, user){
       if (err) {
         res.send({
           status: false,
@@ -371,7 +368,7 @@ app.post('/Team', function(req, res){
     var userId = req.params.id;
     var skill  = req.body.name;
 
-    developers.update({Id:userId },{$pull:{skills:skill}}, function(err, user){
+    User.update({Id:userId },{$pull:{skills:skill}}, function(err, user){
 
       if (err) {
         res.send({

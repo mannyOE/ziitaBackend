@@ -15,11 +15,11 @@ var userSchema = new Schema({
     token_expires : Number,
     profile_photo : {type:String},
     profile_thumbnail : String,
-    team_name     : String,
     team_Id       : String,
     created_time  : String,
     type          : {type:String},
     status        : {type:Number, default: 1},
+    availability  : {type:Number, default: 1},
     isOnline        : {type:Number, default: 0},
     confirm       : {type:Boolean, default: false},
 });
