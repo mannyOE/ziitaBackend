@@ -13,7 +13,7 @@ var port          = process.env.PORT || 2300;
 global.hostname   = process.env.HOSTNAME || "18.221.93.144";
 hostname = hostname.toLowerCase();
 global.hostport   = port;
-global.hosturl    = "https://"+hostname+":"+hostport;
+global.hosturl    = "https://"+global.hostname+":"+hostport;
 console.log("URL: ", hosturl);
 
 var http          = require('http').Server(app);
@@ -38,7 +38,7 @@ if(!is_ssl) {
 }else{
     var io = require('socket.io')(http);
 }
-var io = require('socket.io')(http);
+
 //  DB Connection =============================================================
 var connection = mongoose.connect(configDB.staging, {useMongoClient: true}, function(err) {
     if (err) {
