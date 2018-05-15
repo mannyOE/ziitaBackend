@@ -18,26 +18,26 @@ console.log("URL: ", hosturl);
 
 var http          = require('http').Server(app);
 
-if(is_ssl) {
-    if(hostname == "test.zeedas.com"){
-        console.log("hostname tested = ", hostname);
-        var privateKey = fs.readFileSync('/etc/letsencrypt/live/test.zeedas.com-0001/privkey.pem', 'utf8');
-        var certificate = fs.readFileSync('/etc/letsencrypt/live/test.zeedas.com-0001/cert.pem', 'utf8');
-    }else if(hostname == "demo.zeedas.com"){
-        console.log("hostname demo = ", hostname);
-        var privateKey = fs.readFileSync('/etc/letsencrypt/live/demo.zeedas.com/privkey.pem', 'utf8');
-        var certificate = fs.readFileSync('/etc/letsencrypt/live/demo.zeedas.com/cert.pem', 'utf8');
-    }else{
-        console.log("hostname others = ", hostname);
-        var privateKey = fs.readFileSync('/etc/letsencrypt/live/zeedas.com-0001/privkey.pem', 'utf8');
-        var certificate = fs.readFileSync('/etc/letsencrypt/live/zeedas.com-0001/cert.pem', 'utf8');
-    }
-    var credentials = {key: privateKey, cert: certificate};
-    var https       = require('https').Server(credentials, app);
-    var io          = require('socket.io')(https)
-}else{
-    var io = require('socket.io')(http);
-}
+// if(is_ssl) {
+//     if(hostname == "test.zeedas.com"){
+//         console.log("hostname tested = ", hostname);
+//         var privateKey = fs.readFileSync('/etc/letsencrypt/live/test.zeedas.com-0001/privkey.pem', 'utf8');
+//         var certificate = fs.readFileSync('/etc/letsencrypt/live/test.zeedas.com-0001/cert.pem', 'utf8');
+//     }else if(hostname == "demo.zeedas.com"){
+//         console.log("hostname demo = ", hostname);
+//         var privateKey = fs.readFileSync('/etc/letsencrypt/live/demo.zeedas.com/privkey.pem', 'utf8');
+//         var certificate = fs.readFileSync('/etc/letsencrypt/live/demo.zeedas.com/cert.pem', 'utf8');
+//     }else{
+//         console.log("hostname others = ", hostname);
+//         var privateKey = fs.readFileSync('/etc/letsencrypt/live/zeedas.com-0001/privkey.pem', 'utf8');
+//         var certificate = fs.readFileSync('/etc/letsencrypt/live/zeedas.com-0001/cert.pem', 'utf8');
+//     }
+//     var credentials = {key: privateKey, cert: certificate};
+//     var https       = require('https').Server(credentials, app);
+//     var io          = require('socket.io')(https)
+// }else{
+//     var io = require('socket.io')(http);
+// }
 var io = require('socket.io')(http);
 //  DB Connection =============================================================
 var connection = mongoose.connect(configDB.staging, {useMongoClient: true}, function(err) {
