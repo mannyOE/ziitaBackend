@@ -18,7 +18,7 @@ var connection = mongoose.connect('mongodb://localhost/ziita_test', function(err
     } else {
         console.log('database connection successful');
         app.listen(8080, function(){
-            console.log('Running on Port 3000');
+            console.log('Running on Port 8080');
         });
     }
 });
