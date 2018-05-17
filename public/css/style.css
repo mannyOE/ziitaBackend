@@ -1,0 +1,2094 @@
+
+body{
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y:auto;
+    font-family: 'Roboto', sans-serif !important;
+    padding: 0px 40px !important;
+}
+
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+
+/* Mobile first queries */
+header {
+  height: 75px;
+  box-shadow: 0 7px 28px 0 rgba(0,0,0,0.15);
+}
+
+header > div {
+  height: inherit;
+  line-height: 75px;
+}
+
+.nav-holder {
+  text-align: right;
+}
+
+#menuIcon {
+  display: none;
+}
+
+#menuIcon:checked ~.menu-mobile {
+  display: block;
+  right: 0;
+}
+
+.menu-mobile {
+  position: absolute;
+  width: 50%;
+  height: 100vh;
+  background: #fff;
+  top: 0;
+  z-index: 999;
+  transition: right .8s ease-in-out;
+  box-shadow: 0 7px 28px 0 rgba(0,0,0,0.15);
+  right: -50%;
+  display: none;
+}
+
+.menu-label {
+  position: absolute;
+  top: 1.7rem;
+  right: 2rem;
+  cursor: pointer;
+  transition: .5s ease-in-out;
+}
+
+.menu-label:hover {
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+
+.nav-divider {
+    margin-left: 30px;
+}
+
+nav ul {
+  position: relative;
+  top: 75px;
+}
+
+nav li a {
+  height: 3.125rem;
+  line-height: 3.125rem;
+  display: block;
+  text-align: center;
+}
+
+nav li a:hover {
+  background-color: #fff !important;
+    font-weight: 700;
+}
+
+.hero-section {
+  background-image: url("../assets/imgs/home_illustration.svg");
+  background-size: contain;
+  background-position: bottom;
+  background-repeat: no-repeat;
+  padding-bottom: 3rem;
+  padding-top: 1rem;
+}
+
+.hero {
+  text-align: center;
+    margin: 0px auto;
+    padding-top:40px;
+    padding-bottom:71px;
+}
+
+.hero h1 {
+  font-weight: lighter;
+  font-size: 2rem;
+  line-height: 2.875rem;
+}
+
+.hero h4 {
+  line-height: 1.5rem;
+  font-size: .9rem;
+  font-weight: lighter;
+}
+
+.btn {
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .5s ease-in;
+  height: 19px;
+  width: 159px;
+  line-height: 40px;
+  border-radius: 3px;
+  margin: 0 auto;
+  margin-top: 2rem;
+    color: white;
+    font-size: 14px;
+}
+
+.btn a {
+  display: inline-block;
+  height: inherit;
+  font-size: 0.5375rem;
+}
+
+.pitch-1, .pitch-2, .pitch-3, .stats, .clientelle, .contact {
+  padding: 3rem 0;
+  text-align: center;
+}
+
+.pitch-1 {
+  position: relative;
+  border-bottom: 1px solid #e1e1e1;
+}
+
+.pitch-title {
+  font-size: 0.75rem;
+  font-weight: 500;
+  /*color: #121738;*/
+  color: #0A2463;
+  text-transform: uppercase;
+}
+
+.title-divider {
+  width: 50px;
+  height: 3px;
+  background: #326ADA;
+  margin: 1.188rem auto;
+}
+
+.sub-title {
+  font-size: 1.25rem;
+  line-height:1.75rem;
+  color: #326ADA;
+}
+
+.pitch-text {
+  margin-top: 1.188rem;
+  display: block;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+}
+
+.pitch-1 .right img {
+  padding-top: 2rem;
+  width: 100%;
+  height: auto;
+}
+
+.circle {
+  background: #e2e2e2;
+  opacity: 0;
+  border-radius: 50%;
+  position: absolute;
+  animation: 3s linear bubble infinite;
+}
+
+.circle-1{
+  height: 50px;
+  width: 50px;
+  top: 45%;
+  left: 45%;
+}
+
+.circle-2 {
+  height: 40px;
+  width: 40px;
+  top: 46.5%;
+  left: 45.3%;
+  animation-delay: 1s;
+}
+
+.circle-3 {
+  height: 30px;
+  width: 30px;
+  top: 48.4%;
+  left: 45.6%;
+  animation-delay: 2s;
+}
+
+.circle-4 {
+  height: 20px;
+  width: 20px;
+  top: 50%;
+  left: 45.9%;
+  animation-delay: 3s;
+}
+
+@keyframes bubble{
+  from { opacity: 0.15 }
+  to { opacity: 0; transform: scale(15)}
+}
+
+.pitch-2 .right img, .pitch-2 .left img {
+  padding-top: 2rem;
+  width: 70%;
+  height: auto;
+}
+
+.row-1, .row-2, .row-3 {
+  padding: 2rem 0;
+}
+
+.row-2 {
+  background: #F8F8F8;
+}
+
+.row-2 img {
+  margin-bottom: 1rem;
+}
+
+.pitch-3 {
+  background-image: linear-gradient(-226deg, #326ADA 0%, #121738 100%);
+  padding: 2rem 0;
+}
+
+.pitch-3 * {
+  color: #fff;
+}
+
+.pitch-3 .btn a {
+  color: #326ADA;
+  font-size: 0.5375rem;
+  display: inline-block;
+  height: inherit;
+  font-weight: 500;
+}
+
+.pitch-3 .pitch-title {
+  color: #fff;
+}
+
+.pitch-3 .title-divider { background: #fff; }
+
+.stats {
+  padding: 2rem 0;
+  position: relative;
+}
+
+.stats .ellipse {
+  height: 8rem;
+  width: 8rem;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #e1e1e1;
+  padding-top: 2.5rem;
+  text-align: center;
+  transition: all .5s ease-in-out;
+  cursor: pointer;
+}
+
+.stats .ellipse:hover {
+  background: #326ADA;
+  border: none;
+  color: #C3E4FF;
+  transform: scale(1.2, 1.2);
+}
+
+.stats .mid-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-bottom: 1px solid #e1e1e1;
+  width: 100%;
+  height: 50%;
+  z-index: -1;
+  visibility: hidden;
+}
+
+.stats-wrapper {
+  padding: 1rem 0;
+}
+
+.ellipse h1 {
+  font-size: 1.675rem;
+  font-weight: bold;
+}
+
+.ellipse h6 {
+  text-transform: uppercase;
+  font-size: .6rem;
+  line-height: 1rem;
+}
+
+.clientelle {
+  padding: 3rem 0;
+  border-top: 1px solid #e1e1e1;
+  border-bottom: 1px solid #e1e1e1;
+  background: #f8f8f8;
+}
+
+.clientelle li {
+  display: inline-block;
+  vertical-align: middle;
+  padding: 1rem;
+}
+
+.contact-section {
+  padding: 2.813rem 0;
+}
+
+.contact-section .company-name {
+  font-size: 1rem;
+  margin-top: .5rem;
+}
+
+.company-name{
+  font-size: 15px !important;
+}
+
+.form-title{
+  color:#728EAA;
+  font-size: 18px;
+  padding-bottom: 44px;
+}
+
+.contact-section h3,
+.contact-section h4:nth-child(3) {
+  margin-top: 1rem;
+}
+
+footer {
+  border-top: 1px solid #e1e1e1;
+  padding: 1rem 0;
+  font-size: .8rem;
+}
+
+.social i {
+  color: #c3c3c3;
+  margin-top: 1rem;
+  padding: 0 .5rem;
+  cursor: pointer;
+}
+
+.social i:hover {
+  color: #326ADA;
+}
+
+.about-cloudathon {
+  position: relative;
+  background: #F8FCFF; 
+  padding: 50px 0;
+}
+
+.skewed-rect {
+  height: 200px;
+  width: 100%;
+  right: 0;
+  position: absolute;
+  z-index: -1; 
+  -webkit-transform: skewY(-5deg);
+      -ms-transform: skewY(-5deg);
+          transform: skewY(-5deg);
+  background: #F8FCFF;
+}
+
+.about-cloudathon .skewed-rect {
+  bottom: -30px;
+}
+
+.about-cloudathon .main {
+  width: 80%;
+  margin: 0 auto;
+  position: relative;
+}
+
+.cloudathon-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 3px;
+  height: 200px; 
+  width: 100%;
+  margin: 0 auto;
+  background: url('../assets/imgs/cloudathon-img.jpg') no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+
+.cloudathon-intro {
+  position: relative;
+  margin: 0 auto;
+  margin-top: 3.125rem;
+  width: 80%;
+  padding-bottom: 2.25rem;
+  background: #FFFFFF;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.05);
+  border-radius: 3px;
+  padding-top: 1.875rem;
+}
+
+.txt-area {
+  margin-bottom: 50px;
+}
+
+.grey-divider {
+  width: 65px;
+  margin: 30px auto;
+  height: 3px;
+  background: #D8D8D8;
+}
+
+.txt-area h5 {
+  font-size: 13px;
+  padding: 0 0.5rem;
+}
+
+.txt-area h4 {
+  line-height: 20px;
+  padding: 0 0.5rem;
+}
+
+.txt-area p {
+  margin-top: 1.875rem;
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  padding: 0 1.25rem;
+  font-weight: lighter;
+}
+
+.cloudathon-cat {
+   display: flex; 
+   flex-direction: column;
+}
+
+.cat-wrapper {
+  width: 80%;
+  margin: 0 auto;
+  margin-top: 3.125rem;
+}
+
+.cat {
+  height: 200px;
+  background: #0A2463;
+  border-radius: 3px;
+  margin: 0 auto;
+}
+
+.cat h4 {
+  font-size: 0.8125rem;
+  color: #7BA7FF;
+}
+
+.cat p {
+  font-size: 0.8125rem;
+  font-weight: lighter;
+  color: #fff;
+  margin-top: 0.9375rem;
+  line-height: 1.125rem;
+  padding: 0 1.25rem;
+}
+
+.cat .img-holder {
+  height: 70px;
+  width: 70px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: #fff;
+  position: relative;
+  top: -2.188rem;
+  padding: 0.625rem;
+}
+
+.cat-b {
+  margin-top: 70px;
+}
+
+.img-holder img {
+  height: 50px;
+  width: auto;
+}
+
+.cat ~button, .upcoming-cont button {
+  outline: 0;
+  border: none;
+  border-radius: 3px;
+  height: 40px;
+  width: 120px;
+  background: #326ADA;
+  color: #fff;
+  position: relative;
+  top: -20px;
+  cursor: pointer;
+}
+
+.upcoming-cont button {
+  top: 0;
+}
+
+.past-winners {
+  padding: 50px 10px;
+}
+
+.past-winners h3 {
+  font-weight: 500;
+}
+
+.past-winners p {
+  line-height: 20px;
+  font-size: .9rem;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.winner {
+  height: 300px;
+  width: 220px;  
+  margin: 0 auto;
+  background: #FFFFFF;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.13);
+  border-radius: 3px;
+  margin-top: 50px;
+}
+
+.winner .image {
+  height: 180px;
+}
+
+.image img {
+  height: 180px;
+  width: auto;
+}
+
+.content {
+  padding: 1.5rem 0 1rem;
+}
+
+.content span {
+  display: block;
+}
+
+.content .title {
+  font-size: 0.8125rem;
+  line-height: 1.5rem;
+}
+
+.content .team {
+  font-size: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.content .date {
+  font-size: 0.6875rem;
+  font-weight: lighter;
+}
+
+.cloudathon-stats {
+  background: #F0F7FB;
+  padding: 3.125rem;
+}
+
+.cloudathon-stats-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-1 {
+  padding: 2rem 0;
+}
+
+.stat-1 img {
+  height: 50px;
+  width: auto;
+}
+
+.count {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 1rem 0;
+}
+
+.stat-1 h3 {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.stat-1 p {
+  padding: 0.5rem 0;
+  line-height: 1.25rem;
+  font-size: 0.7125rem;
+  font-weight: lighter;
+}
+
+.upcoming {
+  position: relative;
+  background: #F8FCFF; 
+  padding: 3.125rem 0;
+}
+
+.upcoming .upcoming-cont {
+  display: row;
+  flex-direction: column;
+}
+
+.upcoming-cont button {
+  bottom: 0;
+}
+
+.event-list {
+  width: 200px;
+  margin: 0 auto;
+  margin-top: 2rem;
+}
+
+.event {
+  width: 100%;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: url('../assets/imgs/event-img.jpg') no-repeat;
+  background-size: cover;
+  color: #fff;
+}
+
+.event span { display: block; }
+
+.event .title {
+  font-size: 0.8125rem;
+  line-height: 2rem;
+}
+
+.event .date {
+  font-size: 0.9375rem;
+}
+
+.--event2 {
+  animation-delay: .05s;
+  animation-duration: 3s;
+  margin-top: 1.25rem;
+}
+
+.white-divider {
+  width: 40px;
+  height: 3px;
+  background: #fff;
+  margin: 0 auto;
+  margin-top: 1.3rem;
+}
+
+.about-2 {
+  padding: 0 2rem;
+  margin-top: 3.125rem;
+}
+
+.about-2 h3 {
+  font-weight: 500;
+}
+
+.about-2 p {
+  font-size: 0.8125rem;
+  line-height: 1.3rem;
+  max-width: 500px;
+}
+
+/* Larger than phablet */
+@media (min-width: 550px) {
+  .hero-section {
+    padding-bottom: 5rem;
+  }
+
+
+
+  .btn {
+    height: 50px;
+    width: 130px;
+    line-height: 50px;
+    border-radius: 40px;
+    margin: 0 auto;
+    margin-top: 2rem;
+  }
+
+  .btn a {
+    color: #fff;
+    font-size: 0.9375rem;
+    display: inline-block;
+    height: inherit;
+  }
+
+  .pitch-1 {
+    padding: 5rem 4rem;
+  }
+
+  .pitch-1 .right img {
+    padding: 0;
+    height: auto;
+    width: 80%;
+  }
+
+  .pitch-1 .title-divider { float: left; }
+
+  .pitch-1 .pitch-text {
+    font-size: .8rem;
+  }
+
+  .pitch-2 {
+    padding: 4rem 4rem;
+  }
+
+  .pitch-2 .row-2 {
+    background: #fff;
+  }
+
+  .row-1 .title-divider, .row-3 .title-divider {
+    margin-right: 0;
+  }
+
+  .row-2 .title-divider {
+    margin-left: 0;
+  }
+
+  .pitch-3 .btn {
+    margin-top: 1.575rem;
+  }
+
+  .pitch-3 .btn a {
+    font-size: 0.9375rem;
+  }
+
+  .mid-line {
+    visibility: visible;
+  }
+
+  .clientelle {
+    padding: 1rem 0;
+  }
+
+  .clientelle li {
+    max-width: 130px;
+  }
+
+  .clientelle img {
+    width: 90%;
+    height: auto;
+  }
+
+  .contact-section .btn {
+    margin-top: 2rem;
+  }
+
+  .about-cloudathon .skewed-rect {
+    bottom: -60px;
+  }
+
+  .cloudathon-img {
+    height: 320px;  
+    width: 45%;
+    margin: 0 auto;
+    background: url('../assets/imgs/cloudathon-img.jpg') no-repeat;
+    background-position: center;
+    background-size: cover;
+  }
+
+  .cloudathon-intro {
+    position: relative;
+    margin: 0 auto;
+    margin-top: 50px;
+    width: 80%;
+    height: 420px;
+    margin-bottom: 6.25rem;
+    padding: 2.125rem 1.125rem;
+    background: #FFFFFF;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.05);
+    border-radius: 3px;
+  }
+
+  .txt-area h5 {
+    font-size: 13px;
+  }
+
+  .txt-area h4 {
+    line-height: 20px;
+  }
+
+  .txt-area p {
+    margin-top: 1.875rem;
+    font-size: 0.8125rem;
+    line-height: 1.125rem;
+    padding: 0 1.25rem;
+    font-weight: lighter;
+  }
+
+  .cloudathon-cat {
+    display: flex; 
+    flex-direction: row;
+    justify-content: space-between;
+    max-width: 500px;
+    margin: 0 auto; 
+  }
+
+  .cat-wrapper {
+    width: 48%;
+    margin-top: 1.5rem;
+  }
+
+  .cat {
+    width: 100%;
+    background: #0A2463;
+    border-radius: 3px;
+  }
+
+  .cat h4 {
+    font-size: 0.8125rem;
+    color: #7BA7FF;
+  }
+
+  .cat p {
+    font-size: 0.8125rem;
+    font-weight: lighter;
+    color: #fff;
+    margin-top: 0.9375rem;
+    line-height: 1.125rem;
+    padding: 0 1.25rem;
+  }
+
+  .cat .img-holder {
+    height: 70px;
+    width: 70px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: #fff;
+    position: relative;
+    top: -2.188rem;
+    padding: 0.625rem;
+  }
+
+  .cat-b {
+    margin-top: 0;
+  }
+
+  .img-holder img {
+    height: 50px;
+    width: auto;
+  }
+
+  .cat button, .upcoming-cont button {
+    outline: 0;
+    border: none;
+    border-radius: 3px;
+    height: 40px;
+    width: 120px;
+    background: #326ADA;
+    color: #fff;
+    position: relative;
+    bottom: -20px;
+    cursor: pointer;
+  }
+
+  .past-winners {
+    padding: 6.125rem 0.625rem;
+  }
+
+  .past-winners p {
+    line-height: 1.5rem;
+    font-size: .9rem;
+    max-width: 450px;
+    margin: 0 auto;
+  }
+
+  .list {
+    flex-direction: row;
+    justify-content: space-between;
+    max-width: 95%;
+    margin: 0 auto;
+  }
+
+  .winner {
+    height: 300px;
+    max-width: 200px;  
+    margin: 0 5px;
+    background: #FFFFFF;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.13);
+    border-radius: 3px;
+    margin-top: 50px;
+  }
+
+  .winner .image {
+    height: 180px;
+    width: 100%;
+  }
+
+  .image img {
+    width: 100%;
+  }
+
+  .content {
+    padding: 1.5rem 0 1rem;
+  }
+
+  .content span {
+    display: block;
+  }
+
+  .content .title {
+    font-size: 0.8125rem;
+    line-height: 1.5rem;
+  }
+
+  .content .team {
+    font-size: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .content .date {
+    font-size: 0.6875rem;
+    font-weight: lighter;
+  }
+
+  .cloudathon-stats {
+    background: #F0F7FB; 
+    padding: 1.125rem 0; 
+  }
+
+  .cloudathon-stats-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-1 {
+    padding: 2rem 0;
+  }
+
+  .stat-1 img {
+    height: 50px;
+    width: auto;
+  }
+
+  .count {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 1rem 0;
+  }
+
+  .stat-1 h3 {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .stat-1 p {
+    padding: 0.5rem 0;
+    line-height: 1.25rem;
+    font-size: 0.7125rem;
+    font-weight: lighter;
+    max-width: 300px;
+  }
+
+  .upcoming {
+    position: relative;
+    background: #F8FCFF; 
+    padding: 3.125rem 0;
+  }
+
+  .upcoming .upcoming-cont {
+    display: row;
+    flex-direction: column;
+  }
+
+  .upcoming-cont button {
+    top: 0;
+  }
+
+  .upcoming-cont .grey-divider {
+    margin-left: 0;
+  }
+
+  .event-list {
+    width: 500px;
+    margin: 0 auto;
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between
+  }
+
+  .event {
+    width: 46%;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: url('../assets/imgs/event-img.jpg') no-repeat;
+    background-size: cover;
+    color: #fff;
+  }
+
+  .event span { display: block; }
+
+  .event .title {
+    font-size: 0.8125rem;
+    line-height: 2rem;
+  }
+
+  .event .date {
+    font-size: 0.9375rem;
+  }
+
+  .--event2 {
+    margin-top: 0;
+  }
+
+  .white-divider {
+    width: 40px;
+    height: 3px;
+    background: #fff;
+    margin: 0 auto;
+    margin-top: 1.3rem;
+  }
+
+  .about-2 {
+    padding: 0 2rem;
+    margin-top: 3.125rem;
+  }
+
+  .about-2 h3 {
+    font-weight: 500;
+  }
+
+  .about-2 p {
+    font-size: 0.8125rem;
+    line-height: 1.3rem;
+  }
+
+}
+
+/* Larger than tablet */
+@media (min-width: 768px) {
+  header {
+    padding-top: 25px;
+    box-shadow: none;
+  }
+
+  .logo-holder .col-xs-3 {
+    flex-basis: 0;
+  }
+
+  .menu-label {
+    display: none;
+  }
+
+  .nav-divider {
+    display: inline;
+    padding-left: 30px;
+  }
+
+  nav ul {
+    float: right;
+    top: 0;
+  }
+
+  nav li {
+    float: left;
+  }
+
+  nav li a {
+    display: inline;
+  }
+
+  nav li a:hover {
+  background-color: #fff !important;
+  }
+
+  .menu-items a {
+    font-size: .7rem;
+  }
+
+  .hero-section {
+    padding-bottom: 5rem;
+    padding-top: 1rem;
+  }
+
+
+
+  .hero h1 {
+    font-size: 3.35rem;
+    line-height: 5rem;
+  }
+
+  .hero h4 {
+    font-size: 1.175rem;
+    line-height: 2.2rem;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .btn {
+    height: 70px;
+    width: 200px;
+    line-height: 70px;
+    border-radius: 70px;
+    margin-top: 5rem;
+  }
+
+  .btn a {
+    font-size: 0.9375rem;
+  }
+
+  .stats .mid-line {
+    visibility: visible;
+  }
+
+  .contact-section {
+    padding: 3.125rem 0;
+  }
+
+  .about-cloudathon .main{
+    max-width: 915px;
+  }
+
+  .cloudathon-img {
+    height: 380px;  
+    width: 45%;
+    margin: 0 auto;
+    background: url('../assets/imgs/cloudathon-img.jpg') no-repeat;
+    background-position: center;
+    background-size: cover;
+  }
+
+  .cloudathon-intro {
+    position: relative;
+    margin: 0 auto;
+    margin-top: 50px;
+    width: 80%;
+    height: 500px;
+    margin-bottom: 6.25rem;
+    /* padding-bottom: 100px; */
+    padding: 3.125rem 1.125rem;
+    background: #FFFFFF;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.05);
+    border-radius: 3px;
+    /* padding-top: 30px; */
+  }
+
+  .txt-area h5 {
+    font-size: 3.50rem;
+  }
+
+  .txt-area h4 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 20px;
+  }
+
+  .txt-area p {
+    margin-top: 1.875rem;
+    font-size: 0.9375rem;
+    line-height: 1.45rem;
+    padding: 0 1.25rem;
+    font-weight: lighter;
+  }
+
+  .cloudathon-cat {
+    display: flex; 
+    flex-direction: row;
+    justify-content: space-between;
+    max-width: 500px;
+    margin: 0 auto; 
+  }
+
+  .cat-wrapper {
+    width: 48%;
+    margin-top: 1.5rem;
+  }
+
+  .cat {
+    width: 230px;
+    height: 240px;
+    /* padding-bottom: 30px; */
+    background: #0A2463;
+    border-radius: 3px;
+    /* margin: 0 5px; */
+  }
+
+  .cat h4 {
+    font-size: 1.063rem;
+    color: #7BA7FF;
+  }
+
+  .cat p {
+    font-size: 0.9375rem;
+    font-weight: lighter;
+    color: #fff;
+    margin-top: 0.9375rem;
+    line-height: 1.125rem;
+    padding: 0 1.25rem;
+  }
+
+  .cat .img-holder {
+    height: 110px;
+    width: 110px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: #fff;
+    position: relative;
+    top: -3.438rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .cat-b {
+    margin-top: 0;
+  }
+
+  .img-holder img {
+    height: 60px;
+    width: auto;
+  }
+
+  .cat button, .upcoming-cont button {
+    outline: 0;
+    border: none;
+    border-radius: 3px;
+    height: 40px;
+    width: 120px;
+    background: #326ADA;
+    color: #fff;
+    position: relative;
+    bottom: -20px;
+    cursor: pointer;
+  }
+
+  .past-winners h3 {
+    font-size: 1.875rem;
+  }
+
+  .past-winners p {
+    line-height: 2rem;
+    font-size: 1.25rem;
+    max-width: 80%;
+    font-weight: lighter;
+  }
+
+  .list {
+    flex-direction: row;
+    justify-content: space-between;
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 4.125rem;
+  }
+
+  .content {
+    padding: 1.5rem 0 1rem;
+  }
+
+  .content span {
+    display: block;
+  }
+
+  .content .title {
+    font-size: 0.8125rem;
+    line-height: 1.5rem;
+  }
+
+  .content .team {
+    font-size: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .content .date {
+    font-size: 0.6875rem;
+    font-weight: lighter;
+  }
+
+  .cloudathon-stats {
+    background: #F0F7FB;
+    padding: 3.125rem 0;
+  }
+
+  .cloudathon-stats-list {
+    max-width: 90%;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .stat-1 {
+    padding: 2rem 0;
+    max-width: 400px;
+    margin: 0 1.4rem;
+  }
+
+  .stat-1 img {
+    height: 100px;
+    width: auto;
+  }
+
+  .count {
+    font-size: 3.125rem;
+    font-weight: bold;
+    margin: 1rem 0;
+  }
+
+  .stat-1 h3 {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .stat-1 p {
+    padding: 0.5rem 0;
+    line-height: 1.25rem;
+    font-size: 0.8125rem;
+    font-weight: lighter;
+    max-width: 300px;
+  }
+
+  .upcoming {
+    position: relative;
+    background: #F8FCFF; 
+    padding: 3.125rem 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .upcoming .upcoming-cont {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .upcoming-cont button {
+    top: 0;
+  }
+
+  .upcoming-cont h3 {
+    text-align: left;
+    font-size: 1.25rem;
+    line-height: 1.6rem;
+    max-width: 200px;
+    margin-right: 50px;
+  }
+
+  .event-list {
+    width: 500px;
+    margin: 0 auto;
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between
+  }
+
+  .event {
+    width: 46%;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: url('../assets/imgs/event-img.jpg') no-repeat;
+    background-size: cover;
+    color: #fff;
+  }
+
+  .event span { display: block; }
+
+  .event .title {
+    font-size: 0.8125rem;
+    line-height: 2rem;
+  }
+
+  .event .date {
+    font-size: 1.125rem;
+  }
+
+  .white-divider {
+    width: 40px;
+    height: 3px;
+    background: #fff;
+    margin: 0 auto;
+    margin-top: 1.3rem;
+  }
+
+  .about-2 {
+    padding: 0 2rem;
+    margin-top: 5.938rem;
+  }
+
+  .about-2 h3 {
+    font-weight: 500;
+    font-size: 1.875rem;
+  }
+
+  .about-2 p {
+    font-size: 1.25rem;
+    line-height: 2rem;
+    font-weight: lighter;
+    max-width: 80%;
+    margin: 0 auto;
+  }
+
+  .about-2 .grey-divider {
+    margin: 2.188rem auto;
+  }
+
+}
+
+/* Larger than desktop */
+@media (min-width: 1024px) {
+
+
+  .hero h1 {
+    font-size: 3rem;
+    line-height: 4rem;
+    margin: 0;
+  }
+
+  .hero h4 {
+    font-size: 1.175rem;
+    line-height: 2rem;
+    max-width: 700px;
+  }
+
+  .pitch-1, pitch-2 {
+    padding: 6.25rem 4rem;
+    color: #41546D;
+  }
+
+  .pitch-1 .left .pitch-title,
+  .pitch-2 .pitch-title {
+    font-size: 0.9375rem;
+    margin-top: 2rem;
+  }
+
+  .pitch-1 .left .title-divider {
+    margin-top: 2rem;
+  }
+
+  .pitch-1 .left .sub-title,
+  .pitch-2 .sub-title {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+  }
+
+  .pitch-1 .left .pitch-text,
+  .pitch-2 .pitch-text {
+    font-size: 1.063rem;
+    line-height: 1.7rem;
+    margin-top: 2rem;
+  }
+
+  .pitch-2 .right, pitch-2 .row-2 .left {
+    text-align: left;
+  }
+
+  .pitch-2 .right img {
+    padding: 0;
+    width: 45%;
+    height: auto;
+  }
+
+  .pitch-2 .row-2 {
+    margin: 5rem auto;
+  }
+
+  .pitch-2 .row-2 .left {
+    text-align: right;
+  }
+
+  .pitch-3 {
+    padding: 5rem 0;
+  }
+
+  .pitch-3 * {
+    color: #fff;
+  }
+
+  .pitch-3 .btn, .contact-section .btn {
+    height: 40px;
+    width: 120px;
+    line-height: 40px;
+  }
+
+  .pitch-3 .btn a, .contact-section .btn a {
+    font-size: 0.6375rem;
+  }
+
+  .stats {
+    padding: 5rem 8rem;
+  }
+
+  .stats .ellipse {
+    width: 11rem;
+    height: 11rem;
+    position: relative;
+    padding: 0;
+  }
+
+  .ellipse .info {
+    position: absolute;
+    top: 38%;
+    width: 100%;
+  }
+
+  .social i {
+    margin-top: 0;
+  }
+
+  .about-2 p, .past-winners p {
+    max-width: 70%;
+  }
+
+}
+
+/* Larger than Desktop HD */
+@media (min-width: 1280px) {
+  .hero-section {
+    height: 70vh;
+  }
+
+  .hero h1 {
+    font-size: 5rem;
+    line-height: 6rem;
+  }
+
+  .hero h4 {
+    max-width: 700px;
+  }
+
+  .pitch-1 {
+    height: 700px;
+  }
+
+  .clientelle {
+    height: 165px;
+  }
+
+  .clientelle li {
+    max-width: 200px;
+  }
+
+  .copyright {
+    font-size: 0.65rem;
+  }
+
+
+}
+
+.label-div {
+    display: inline-block;
+    margin-left:33%;
+    width: 500px;
+    height: auto;
+}
+
+label{
+  font-size:12px !important;
+  color:#728EAA;
+  letter-spacing:4.29px;
+}
+
+.tab-content{
+  padding-left:56px !important;
+}
+
+.form-cp{
+  width:400px !important;
+  height:45px !important;
+  background-color: #DEE9F2 !important;
+  font-weight: 1px !important;
+  border-radius: 3px !important;
+  border: 1px solid #E5E7F7;
+  box-shadow: none;
+  float:left;
+}
+
+.form-cp-x{
+  width:325px !important;
+  height:45px !important;
+  background-color: #FFF !important;
+  font-weight: 1px !important;
+  border-radius: 3px !important;
+  border: 1px solid #E5E7F7;
+  box-shadow: none;
+  margin: 0px auto !important;
+}
+
+.tag{
+  background-color: #F0F5F9;
+  border-radius: 3px;
+  border: 1px solid #E5E7F7;
+  font-weight: normal;
+  padding: 3px 13px;
+  font-size: 12px;
+  width:157.5px;
+  color: #728EAA; 
+  cursor: pointer;
+  margin-left: 40px;
+}
+
+.tag:hover{
+  color:#000;
+  font-weight: bold;
+}
+
+.times{
+  color:#999;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.times:hover{
+  color:#000;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.submit{
+  padding: 13px 49px;
+  font-size:12px;
+  color:#6A86A5;
+  background-color: #FFF !important;
+  border-radius: 3px;
+  border: 1px solid #E5E7F7;
+  box-shadow: none;
+  float:left;
+}
+
+.submit-md{
+  padding: 13px 34px !important;
+}
+
+.submit-md-x{
+  padding: 12px 10px !important;
+  margin-top: 8px !important;
+}
+
+.submit-md-x:hover{
+  transition:linear .5s;
+  background-color: #326ADA !important;
+  color:white;
+}
+
+.submit-x{
+  padding: 13px 49px;
+  font-size:12px;
+  color:#FFF;
+  background-color: #326ADA !important;
+  float: left;
+  margin-left:13px;
+  border-radius: 3px;
+  border: 1px solid #E5E7F7;
+  box-shadow: none;
+}
+
+.pad-all{
+padding:30px 40px;
+}
+
+.tab-title{
+  font-size: 10px !important;
+  color:#728EAA;
+}
+
+.tab-title-sub{
+  font-size:18px;
+  font-weight:normal;
+  color:#323336;
+}
+
+.nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover {
+  background-color: #FFF !important;  
+  width:220px;
+  height: 130px;
+  border-top: 2px solid #E5E7F7;
+  border-bottom: 2px solid #E5E7F7;
+}
+
+.nav>li>a {
+  opacity: 0.4;
+}
+
+.nav>li.active>a {
+  opacity: 1;
+}
+
+.nav-pills>li >a{
+  height: 130px;
+}
+
+.nav>li>a:focus, .nav>li>a:hover {
+  text-decoration: none;
+  background-color: transparent !important;
+}
+
+.nav-stacked li.active{
+  border-right:2px solid #326ADA;
+}
+
+
+
+.proj{
+  display:inline-block;
+}
+
+.proj-title{
+font-size:12px !important;
+font-weight:bold;
+color:#326ADA;
+letter-spacing:4.29px;
+}
+
+.proj-txt{
+  color: #728EAA;
+  font-weight:normal;
+}
+
+.proj-type {
+  height: 140px;
+  border: 1px solid #E5E7F7;
+  border-radius: 3px;
+  padding: 30px 0px;
+  width: 410px;
+  float: left;
+}
+
+.proj-type-x{
+  margin-right:20px;
+}
+
+.proj-type-y{
+  height:auto;
+  border: 1px solid #E5E7F7;
+  border-radius: 3px;
+  padding: 30px 0px;
+  width: 410px;
+  margin-top: 20px;
+  float:left;
+}
+
+.proj-type-z {
+  width: 100%;
+  min-height: 183px;
+  height: auto;
+  border: 1px solid #E5E7F7;
+  border-radius: 3px;
+  padding: 30px;
+  margin-top: 57px;
+}
+
+.proj-name{
+  font-size: 15px;
+  font-weight: bold;
+  color: #728EAA;
+  letter-spacing: 0;
+  margin-bottom: 0px !important;
+}
+
+.proj-address{
+  font-size: 12px;
+  color: #728EAA;
+  letter-spacing: 0;
+  line-height: 18px;
+  margin-bottom: 0px !important;
+}
+
+.proj-count{
+  font-size: 10px;
+  color:#728EAA;
+  font-style: italic;
+}
+
+.proj-managers{
+  padding-top:50px;
+}
+
+.b-r{
+  border-right:1px solid #E5E7F7;
+}
+
+.b-l{
+  border-left:1px solid #E5E7F7;
+}
+
+.b-t{
+  border-top:1px solid #E5E7F7;
+}
+
+.b-b{
+  border-bottom:1px solid #E5E7F7;
+}
+
+.select{
+  padding-top:15px;
+}
+
+.selected{
+  color:#7ED321 ;
+  font-size: 24px !important;
+  vertical-align: middle;
+}
+
+.avatar{
+  border-radius: 100%;
+  border: 1px solid #EEE;
+  margin:5px 0px;
+}
+
+.avatar-chat{
+  border-radius: 100%;
+  border: 1px solid #EEE;
+  margin:10px 0px;
+}
+
+.no-pad{
+  padding:0px !important;
+}
+
+.proj-div {
+  padding: 40px 20px;
+  height: 130px;
+  width: 257px !important;
+  float: left;
+}
+
+.pagination{
+  padding-top: 57px;
+}
+
+.prev-next{
+  padding:5px;
+  margin: 0px 10px; 
+}
+
+.pagination li{
+  cursor: pointer;
+  color:#6A86A5;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pagination li:hover{
+  color:#326ADA;
+}
+
+.beside{
+  float:left;
+  margin:0px 20px;
+}
+
+.form-cp-z{
+  width:325px !important;
+  height:45px !important;
+  background-color: #E5E7F7 !important;
+  font-weight: 1px !important;
+  border-radius: 3px !important;
+  border: 1px solid #DEE9F2;
+  box-shadow: none;
+  float:left;
+}
+.proj-type:hover, .proj-type-x:hover, .proj-type-y:hover{
+  border:2px solid #326ADA;
+}
+
+.button-div{
+  margin-top:20px;
+}
+
+.no-pad-left{
+  padding-left:0px !important;
+}
+
+.tab-title a {
+  letter-spacing: 4.95px;
+  font-size: 12px !important;
+  color: #728EAA !important;
+  border: 0px !important;
+  font-weight:bold;
+  text-align:center;
+}
+
+.active.tab-title a {
+  letter-spacing: 4.95px;
+  font-size: 12px !important;
+  color: #728EAA !important;
+  border: 0px !important;
+  border-bottom: 1px solid #326ADA !important;
+  font-weight:bold;
+  text-align:center;
+}
+
+.contact-box{
+  background: #FFFFFF;
+  border: 1px solid #DEE9F2;
+  border-radius: 3px;
+  height: 185px;
+  width: 285px;
+  float: left;
+  margin-right: 31px;
+  margin-top: 69px;
+  padding: 20px 10px;
+}
+
+.contact-title{
+  font-size: 18px;
+  color: #728EAA;
+  letter-spacing: 0;
+}
+
+.contact-head-txt{
+  font-size: 12px;
+  color: #728EAA;
+  letter-spacing: 4.29px;
+  font-weight: bold;
+}
+
+.contact-txt{
+  font-size: 14px;
+  color: #000000;
+  letter-spacing: 0;
+  font-weight: normal;
+}
+
+.contact-button{
+  padding: 13px 49px;
+  font-size: 12px;
+  color: #FFF;
+  background-color: #326ADA !important;
+  margin-left: 13px;
+  border-radius: 3px;
+  border: 1px solid #E5E7F7;
+  box-shadow: none;
+}
+
+.chat-box{
+  width: 600px;
+  background: #FFFFFF;
+  border: 1px solid #E5E7F7;
+  margin: 0px auto;
+}
+
+.chat-head{
+  height: 60px;
+  width:100%;
+  border-bottom: 1px solid #E5E7F7;
+}
+
+.chat-bottom{
+  height: 60px;
+  width:100%;
+  border-top: 1px solid #E5E7F7 !important;
+  margin-top:50px;
+  border-left:0px !important;  
+  border-right:0px !important;  
+  border-bottom:0px !important;
+  padding:10px 20px;
+}
+
+.chat-title {
+  font-size: 12px;
+  color: #326ADA;
+  padding-top: 20px;
+  font-weight: bold;
+  border-top: 2px solid #326ADA;
+  width: 72px;
+  text-align: center;
+}
+
+.beside.row{
+  width: 200px;
+  margin-left: 5px;
+}
+
+.help-title{
+  font-size: 12px;
+  color: #728EAA;
+  font-weight: bold;
+  padding: 20px 0px;
+  padding-left: 80px;
+  cursor:pointer;
+}
+
+.help-title:hover{
+  font-size:bold;
+  color: #326ADA;
+  transition:linear 0.5s;
+}
+
+.help-icon{
+  margin-left: 0px !important;
+  padding-top: 20px !important;
+  color: #326ADA;
+  font-size: 20px !important;
+  cursor:pointer;
+}
+
+.proj-mngr-chat{
+  padding-top:10px;
+}
+
+.proj-mngr-chat{
+  float:left;
+  margin-top: 50px;
+  width:315px;
+}
+
+.proj-mngr-chat .chat-txt-date{
+  float:right;
+}
+
+.client-chat{
+  float:right;
+  margin-top: 50px;
+  width:315px;
+}
+
+.client-chat .chat-txt-date{
+  float:left;
+}
+
+.chat-txt{
+  background: #FFFFFF;
+  border: 1px solid #DEE9F2;
+  border-radius: 3px;
+  font-size: 14px;
+  color: #728EAA;
+  letter-spacing: 0;
+  line-height: 18px;
+  min-height: 40px;
+  width:315px;
+  padding: 10px;
+}
+
+.proj-mngr-chat{
+  margin-left: 50px;
+}
+
+.client-chat{
+  margin-right: 50px;
+}
+
+.proj-mngr-head{
+  padding:10px 0px;
+}
+
+.client-chat .chat-txt{
+  margin-right: 50px;
+  background: #F0F5F9;
+}
+
+.chat-txt-date{
+  font-size: 10px;
+  color: #728EAA;
+  letter-spacing: 0;
+}
+
+.modal-backdrop {
+  background-color: #fff !important;
+}
+
+.modal-content{
+box-shadow:none !important;
+border:0px !important
+}
+
+.fade.in {
+  opacity: 1 !important;
+}
