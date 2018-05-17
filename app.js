@@ -1,5 +1,5 @@
 
-var is_ssl = process.env.NOSSL?false:true;
+var is_ssl = false;
 var express       = require('express');
 var fs       = require('fs');
 var app           = express();
@@ -9,9 +9,9 @@ var mongoose      = require('mongoose');
 var configDB      = require('./database/config/database.js');
 var autoIncrement = require('mongoose-auto-increment');
 var jwt           = require('jsonwebtoken');
-var port          = process.env.PORT || 8000;
-global.hostname   = process.env.HOSTNAME || "zeedas.com";
-hostname = hostname.toLowerCase();
+var port          = process.env.PORT || 3000;
+global.hostname   = process.env.HOSTNAME || "18.221.93.144";
+hostname = global.hostname.toLowerCase();
 global.hostport   = port;
 global.hosturl    = "https://"+hostname+":"+hostport;
 console.log("URL: ", hosturl);
