@@ -1,0 +1,33 @@
+@font-face {
+  font-family: 'Halis GR';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./halis/HalisGRRegular.otf') format('otf');
+  /*unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;*/
+
+}
+@font-face {
+  font-family: 'Halis GR Bold';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./halis/HalisGR-Bold.otf') format('otf');
+  /*unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;*/
+
+}
+@font-face {
+  font-family: 'Halis GR Medium';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./halis/HalisGR-Medium.otf') format('otf');
+  /*unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;*/
+
+}
+
+@font-face {
+  font-family: 'Halis GR Book';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./halis/HalisGR-Book.otf') format('otf');
+  /*unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;*/
+
+}

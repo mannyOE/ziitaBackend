@@ -1,7 +1,9 @@
-.DS_Store
-.monitor
-nodemon-ignore
-node_modules
-*.swp
-
-
+# Add any directories, files, or patterns you don't want to be tracked by version control
+node_modules/
+public/files/
+public/img/
+.idea/
+view/
+.git/
+pull.bat
+push.bat
