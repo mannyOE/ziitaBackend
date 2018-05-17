@@ -45,7 +45,6 @@ var connection = mongoose.connect(configDB.staging, {useMongoClient: true}, func
         console.log('database connection error', err);
     } else {
         console.log('database connection successful');
-
     }
 });
 
