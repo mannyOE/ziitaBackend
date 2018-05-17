@@ -93,7 +93,7 @@ require('./modules/QA/qa')(app);
 //EA ===============================================================================
 require('./modules/Ea/ea')(app);
 //  Subscriptions   ====================================================================
-require('./modules/subs/subscriptions');
+// require('./modules/subs/subscriptions');
 
 //  Bash   ====================================================================
 //require('./modules/bash/bash')(app);
