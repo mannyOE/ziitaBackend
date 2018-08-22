@@ -729,11 +729,6 @@ var mergeRepo = function(project, module){
     });
 };
 
-//Get all users in the User table filtered by ID
-var getUserById = async function(){
-    let users = await User.find({}).exec();
-    return arrangeById(users, "Id");
-}
 
 //Arrange data using the provided id. use column to filter the data if provided
 var arrangeById = function(table, id, column){
@@ -765,5 +760,4 @@ module.exports = {
     destroyDocker,
     mergeRepo,
     arrangeById,
-    getUserById
 };
