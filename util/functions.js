@@ -59,7 +59,7 @@ var _login = {
   username:"admin@natterbase.com",
   password:"paswword"
 }
-var isLoggedIn = function (req, res, next, perm) {
+var isLoggedIn = function (req, res, next) {
   var token = req.body.token || req.params.token || req.headers['x-access-token'];
   if(req.body.user){
     console.log(req.body.user);
@@ -67,49 +67,15 @@ var isLoggedIn = function (req, res, next, perm) {
 
   if (token) {  
 
-    jwt.verify(token, "IloveZeedas", function(err, decoded) {
+    jwt.verify(token, 'I Love Ziita', function(err, decoded) {
       if (err) {
         return res.json({ success: false, message: 'Failed to authenticate token.' });
       } else {
         req.decoded = decoded;
         // check if account is Blocked
-        User.findOne({Id: decoded.user}, (err, userResult)=>{
-          if(!err){
-            if(userResult.team_Id !== decoded.user){
-              wallet.findOne({Id: userResult.team_Id}, (error, walletResult)=>{
-                var hours2 = Math.abs(new Date().getMilliseconds()-walletResult.created_time)/36e5;
-
-                if(Math.floor(hours2/168)>0 && walletResult.blocked){
-                  res.send({
-                    status: false,
-                    message: "Account Blocked",
-                    denied: true,
-                  });
-                }else{
-                  // check permission
-                  if(perm !== undefined){
-                    roles.findOne({Id: decoded.user, Permission: perm}, (err, queryResult)=>{
-                      if(queryResult){
-                        next();
-                      }else{
-                        res.send({
-                          status: false,
-                          message: "Access Denied",
-                          denied: true,
-                        });
-                      }
-                    });
-                  }else{
-                    next();
-                  }
-                }
-              })
-            }else{
               // check permission
               next()
-            }
-          }
-        })
+         
       }
     });
   } else {

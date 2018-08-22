@@ -236,7 +236,7 @@ module.exports = function (app, io) {
                 throw err;
             //console.log(userDetail);
 
-            User.find({team_Id: userDetail.team_Id}, function (err, user) {
+            User.find({team_Id: userDetail.team_Id, Id: {$ne: user}}, function (err, user) {
 
                     var Team = user;
                     data.people = Team.length;

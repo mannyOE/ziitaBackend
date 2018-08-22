@@ -17,27 +17,7 @@ global.hosturl    = "https://"+hostname+":"+hostport;
 console.log("URL: ", hosturl);
 
 var http          = require('http').Server(app);
-
-if(is_ssl) {
-    if(hostname == "test.zeedas.com"){
-        console.log("hostname tested = ", hostname);
-        var privateKey = fs.readFileSync('/etc/letsencrypt/live/test.zeedas.com-0001/privkey.pem', 'utf8');
-        var certificate = fs.readFileSync('/etc/letsencrypt/live/test.zeedas.com-0001/cert.pem', 'utf8');
-    }else if(hostname == "demo.zeedas.com"){
-        console.log("hostname demo = ", hostname);
-        var privateKey = fs.readFileSync('/etc/letsencrypt/live/demo.zeedas.com/privkey.pem', 'utf8');
-        var certificate = fs.readFileSync('/etc/letsencrypt/live/demo.zeedas.com/cert.pem', 'utf8');
-    }else{
-        console.log("hostname others = ", hostname);
-        var privateKey = fs.readFileSync('/etc/letsencrypt/live/zeedas.com-0001/privkey.pem', 'utf8');
-        var certificate = fs.readFileSync('/etc/letsencrypt/live/zeedas.com-0001/cert.pem', 'utf8');
-    }
-    var credentials = {key: privateKey, cert: certificate};
-    var https       = require('https').Server(credentials, app);
-    var io          = require('socket.io')(https)
-}else{
     var io = require('socket.io')(http);
-}
 
 //  DB Connection =============================================================
 var connection = mongoose.connect(configDB.staging, {useMongoClient: true}, function(err) {
@@ -56,50 +36,24 @@ autoIncrement.initialize(connection);
 require('./config')(app,auth);
 
 // Auth   ======================================================================
-require('./modules/Authentication/Auth')(app);
+require('./routes/Auths')(app);
 
 //  Profile ====================================================================
-require('./modules/Profile/Profile')(app);
-require('./modules/users/user_management')(app, io);
-
-//  Devs   ====================================================================
-require('./modules/Developers/developers')(app);
+require('./routes/Users')(app);
 
 //  Wallet   ====================================================================
-require('./modules/wallet/Wallet')(app);
+require('./routes/Wallet')(app);
 
-//  Projects   ====================================================================
-require('./modules/Projects/projects')(app, io);
-require('./modules/module/module')(app, io);
 
 //Messagin =======================================================================
-require('./modules/socket/messaging')(app, io);
+require('./routes/Messaging')(app, io);
 
-//Terminal =======================================================================
-require('./modules/socket/term')(app, io);
-
-//  Skills   ====================================================================
-require('./modules/skills/skills')(app);
 
 //  Notifications   ====================================================================
-require('./modules/notification/notification')(app, io);
-
-//  Docker   ====================================================================
-require('./modules/docker/docker')(app);
-//  admin   ====================================================================
-require('./modules/admin/admin')(app);
-//  QA   ====================================================================
-require('./modules/QA/qa')(app);
-//EA ===============================================================================
-require('./modules/Ea/ea')(app);
-//  Subscriptions   ====================================================================
-// require('./modules/subs/subscriptions');
-
-//  Bash   ====================================================================
-//require('./modules/bash/bash')(app);
+require('./routes/Notifications')(app, io);
 
 
-// require('./database/seeders/index.js');
+
 // launch ======================================================================
 if(is_ssl) {
     https.listen(port);

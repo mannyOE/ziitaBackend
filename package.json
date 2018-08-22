@@ -1,5 +1,5 @@
 {
-  "name": "DMS",
+  "name": "ziita",
   "version": "1.0.0",
   "description": "Project Management System",
   "main": "app.js",
@@ -70,5 +70,13 @@
   },
   "devDependencies": {
     "mongoose-seeder": "^1.2.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cdmi2018Webdev/ziitabackend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Cdmi2018Webdev/ziitabackend/issues"
+  },
+  "homepage": "https://github.com/Cdmi2018Webdev/ziitabackend#readme"
 }
