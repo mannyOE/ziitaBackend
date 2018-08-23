@@ -405,8 +405,8 @@ function checks(id, type){
 }
 
 function search_permission_array(field){
-  let rays = permUtil.permissionsArray;
-  let jays = [];
+  var rays = permUtil.permissionsArray;
+  var jays = [];
   if(field === 1){
     jays = rays.filter(e=>e.default_client === true);
     // console.log(jays);
