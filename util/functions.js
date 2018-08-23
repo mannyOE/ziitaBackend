@@ -3,7 +3,7 @@ var smtpTransport   = require('nodemailer-smtp-transport');
 var express         = require('express');
 var hbs             = require('nodemailer-express-handlebars');
 var User            = require('../database/models/user.js');
-var wallet            = require('../database/models/Wallet.js');
+var walvar            = require('../database/models/Wallet.js');
 var Projects            = require('../database/models/projects');
 var roles            = require('../database/models/roles.js');
 var Perm     = require('../database/models/Permissions.js');
@@ -732,8 +732,8 @@ var mergeRepo = function(project, module){
 
 //Arrange data using the provided id. use column to filter the data if provided
 var arrangeById = function(table, id, column){
-    let filteredTable = {};
-    for(let i in table){
+    var filteredTable = {};
+    for(var i in table){
         filteredTable[table[i][id]] = column?table[i][column]:table[i];
     }
     return filteredTable;
