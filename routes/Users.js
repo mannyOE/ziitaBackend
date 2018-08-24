@@ -12,6 +12,7 @@ module.exports = function (app) {
 	app.post('/Invite', UserMgt.invite_user);
 	app.get('/get_clients', isLoggedIn,UserMgt.get_clients);
 	app.get('/s', (req, res)=>{
+		console.log("djskd");
 		res.send('Invites');
 	})
 }
