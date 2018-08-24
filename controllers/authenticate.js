@@ -249,6 +249,7 @@ var auth = {
 
   // resend confirmation controller
   resend_confirmation: function(req, res){
+    console.log('start');
     var email = req.body.Email;
         email = email?email.toLowerCase():"";
 
