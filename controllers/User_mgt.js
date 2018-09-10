@@ -103,17 +103,62 @@ invite_user: function(req, res){
             if (err)
                 throw err;
             //console.log(userDetail);
+            Invited.find({team_Id: userDetail.team_Id}, (err, inv)=>{
 
-            User.find({team_Id: userDetail.team_Id, Id: {$ne: user}}, function (err, user) {
+              User.find({team_Id: userDetail.team_Id, Id: {$ne: user}}, function (err, user) {
 
-              data.staff = user.filter(e=>e.type==3||e.type=='3');
-              data.clients = user.filter(e=>e.type==2||e.type=='2');
-                        res.send({status: true, data: data});
+                data.staff = {
+                  confirmed: user.filter(e=>e.type==3||e.type=='3'),
+                  pending: inv
+                };
+                data.clients = user.filter(e=>e.type==2||e.type=='2');
+                          res.send({status: true, data: data});
 
 
-            });
+              });
+            })
         });
     },
+
+
+    save_clients: (req, res, next)=>{
+        req.body.created_time = new Date().getTime();
+        var password = shortid.generate();
+        req.body.Id = shortid.generate();
+        req.body.type = 2;
+        req.body.status = 2;
+        req.body.Password = bcrypt.hashSync(password);
+        req.body.Email = req.body.Email.toLowerCase();
+        // console.log(req.body);
+        User.findOne({Email: req.body.Email}, function (err, user) {                
+            if(user){
+                 res.send({
+                    status: true,
+                    message: 'invite sent succesfully'
+                });
+                 return;
+            }
+            console.log(password);
+             var send_mail = function () {
+                var mail = {};
+                mail.template = "invite";
+                mail.subject = "Portal Account Created"+password;
+                mail.first_name = req.body.first_name;
+                mail.team_name = "CDMI Online";
+                mail.email = req.body.Email;
+               
+                functions.Email(mail);
+            }
+            var u_ser = new User(req.body);
+            send_mail();
+            // u_ser.save();
+            res.send({
+                status: true,
+                message: 'Client Enrollment Complete'
+            });
+            return;
+        });
+    }
 
 
 

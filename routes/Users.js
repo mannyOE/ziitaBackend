@@ -11,8 +11,7 @@ module.exports = function (app) {
 	// shouldnt be here
 	app.post('/Invite', UserMgt.invite_user);
 	app.get('/get_clients', isLoggedIn,UserMgt.get_clients);
-	app.get('/s', (req, res)=>{
-		console.log("djskd");
-		res.send('Inviteskjkdw ewe i owjqiw h');
-	})
+	// save client
+	app.post('/save-clients', isLoggedIn,UserMgt.save_clients);
+	
 }
